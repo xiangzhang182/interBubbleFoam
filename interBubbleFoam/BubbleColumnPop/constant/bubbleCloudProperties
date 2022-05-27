@@ -1,0 +1,140 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1812                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      reactingCloud1Properties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solution
+{
+    active          true;
+    coupled         true;
+    transient       yes;
+    cellValueSourceCorrection on;
+    maxCo           0.3;
+
+    sourceTerms
+    {
+        schemes
+        {
+            U               explicit 1;
+        }
+    }
+
+    interpolationSchemes
+    {
+        rho             cell;
+        U               cellPoint;
+        mu              cell;
+    }
+
+    integrationSchemes
+    {
+        U               Euler;
+    }
+}
+
+
+constantProperties
+{
+    rho0            1.199;
+
+    constantVolume  false;
+
+    //Not sure whether alphaMax is actually used anywhere
+    alphaMax        1.0; //CHW - Added for determination of alphac in main solver
+}
+
+
+subModels
+{
+    particleForces
+    {
+        sphereDrag;
+        gravity;
+    }
+
+    injectionModels
+    {
+        model1
+        {
+            type            patchInjection;
+            SOI             0.01;
+            massTotal       20;
+            parcelBasisType fixed;
+            nParticle       1;
+            patch           lowerMidWall;
+            duration        10;
+            //parcelsPerSecond 500;
+            parcelsPerSecond 1500;
+            U0              (0 0.1 0);
+            flowRateProfile constant 1;
+            sizeDistribution
+            {
+                /*type        uniform;
+                uniformDistribution
+                {
+                     minValue       0.01;
+                     maxValue       0.02;
+                }*/
+
+                type        fixedValue;
+                fixedValueDistribution
+                {
+                     value       0.004;
+                }
+            }
+        }
+    }
+
+    collisionModel none;
+
+    dispersionModel stochasticDispersionRAS;
+
+    patchInteractionModel standardWallInteraction;
+
+    heatTransferModel none;
+
+    compositionModel singleMixtureFraction;
+
+    phaseChangeModel none;
+
+    devolatilisationModel none;
+
+    surfaceReactionModel none;
+
+    stochasticCollisionModel none;
+
+    surfaceFilmModel none;
+
+    radiation       off;
+
+    standardWallInteractionCoeffs
+    {
+        type            rebound;
+    }
+
+    RanzMarshallCoeffs
+    {
+        BirdCorrection  off;
+    }
+
+}
+
+cloudFunctions
+{
+  
+}
+
+
+// ************************************************************************* //
