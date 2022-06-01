@@ -12,7 +12,9 @@ EXE_INC = \
     -I$(LIB_SRC)/TurbulenceModels/incompressible/lnInclude \
     -I$(LIB_SRC)/transportModels/immiscibleIncompressibleTwoPhaseMixture/lnInclude \
     -I$(LIB_SRC)/lagrangian/basic/lnInclude \
+    -I$(LIB_SRC)/lagrangian/distributionModels/lnInclude \
     -I$(LIB_SRC)/lagrangian/intermediate/lnInclude \
+    -IBubbleCloud/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/specie/lnInclude \
     -I$(LIB_SRC)/transportModels/compressible/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
@@ -21,12 +23,16 @@ EXE_INC = \
     -I$(LIB_SRC)/regionModels/regionModel/lnInclude \
     -I$(LIB_SRC)/regionModels/surfaceFilmModels/lnInclude \
 
+
 EXE_LIBS = \
+    -L$(FOAM_USER_LIBBIN) \
     -lfiniteVolume \
     -lfvOptions \
     -lmeshTools \
     -llagrangian \
     -llagrangianIntermediate \
+    -ldistributionModels \
+    -llagrangianBubbleCloud \
     -llagrangianTurbulence \
     -lspecie \
     -lradiationModels \

@@ -1,0 +1,7 @@
+
+
+/* Bubble Cloud */
+basicBubbleParcel/defineBasicBubbleParcel.C
+basicBubbleParcel/makeBasicBubbleParcelSubmodels.C
+
+LIB = $(FOAM_USER_LIBBIN)/liblagrangianBubbleCloud

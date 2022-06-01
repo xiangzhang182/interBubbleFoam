@@ -195,8 +195,8 @@ volScalarField mu
 /************************************************************************/
 #include "createMRF.H"
 
-Info<< "Constructing kinematicCloud" << endl;
-basicKinematicCollidingCloud bubbles
+Info<< "Constructing BubbleCloud" << endl;
+basicBubbleCloud bubbles
 (
     "bubbleCloud",
     rho,
