@@ -40,7 +40,6 @@ License
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-
 	makeParcelCloudFunctionObjects(basicBubbleCloud);
 
 	// Kinematic sub-models
@@ -48,8 +47,8 @@ License
 
 	makeParcelDispersionModels(basicBubbleCloud);
 	makeParcelInjectionModels(basicBubbleCloud);
-	typedef basicBubbleCloud::collidingCloudType collidingParcelType;
-	makeParcelCollisionModels(collidingParcelType);
+
+    makeParcelCollisionModels(collidingBubbleType);
 	makeParcelPatchInteractionModels(basicBubbleCloud);
 	makeParcelStochasticCollisionModels(basicBubbleCloud);
 	makeParcelSurfaceFilmModels(basicBubbleCloud);

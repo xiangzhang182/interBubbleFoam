@@ -46,7 +46,8 @@ Description
 #include "turbulentTransportModel.H"
 #include "pimpleControl.H"
 #include "fvOptions.H"
-#include "CorrectPhi.H"
+//#include "CorrectPhi.H"
+#include "cfdTools/general/CorrectPhi/CorrectPhi.H"
 #include "fvcSmooth.H"
 
 /*Addition of include files from reactingParcelFoam solver*/

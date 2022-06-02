@@ -31,8 +31,8 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef basicKinematicBubbleCloud_H
-#define basicKinematicBubbleCloud_H
+#ifndef basicBubbleCloud_H
+#define basicBubbleCloud_H
 
 #include "Cloud.H"
 #include "KinematicCloud.H"
@@ -48,15 +48,18 @@ namespace Foam
     <
         CollidingCloud
         <        
-             KinematicCloud
-	     <
-	         Cloud
-	         <
-	             basicBubbleParcel
-	         >
-	     >
-	>
-    > basicBubbleCloud;
+            KinematicCloud
+	        <
+	            Cloud
+	            <
+	               basicBubbleParcel
+	            >
+	        >
+	    >
+	> basicBubbleCloud;
+	
+	typedef basicBubbleCloud::collidingCloudType collidingBubbleType;
+
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
