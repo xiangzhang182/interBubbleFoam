@@ -99,7 +99,7 @@ subModels
 
     collisionModel none;
 
-    dispersionModel stochasticDispersionRAS;
+    dispersionModel none; //stochasticDispersionRAS;
 
     patchInteractionModel standardWallInteraction;
 
