@@ -202,7 +202,7 @@ typedef typename Foam::BubbleParcel<Foam::CollidingParcel<Foam::KinematicParcel<
                 
             if (cAlpha2 > 0.5)
             {
-                bubbles.deleteParticle(p);
+                //bubbles.deleteParticle(p);
             }
         }
 

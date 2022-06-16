@@ -104,7 +104,8 @@ protected:
         // References to the cloud sub-models
 	//Rattner - none needed
 
-	//In future, this is where some reference fields to carrier fluid need to be specified
+	//References to the carrier/continuous phase field
+	const volScalarField& alpha_L_;
 
         // Initialisation
 
@@ -124,6 +125,7 @@ public:
             const volVectorField& U,
             const volScalarField& mu,
             const dimensionedVector& g,
+            const volScalarField& alpha_L,
             bool readFields = true
         );
 
@@ -171,6 +173,9 @@ public:
 
             //- Return a reference to the cloud copy
             inline const BubbleCloud& cloudCopy() const;
+
+            //- Return const access to the carrier volume fraction field
+            inline const volScalarField& alpha_L() const;
 
 
         // Cloud evolution functions

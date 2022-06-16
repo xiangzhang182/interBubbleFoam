@@ -27,6 +27,28 @@ License
 
 #include "BubbleParcel.H"
 
+
+// * * * * * * * * * * *  Protected Member Functions * * * * * * * * * * * * //
+
+template<class ParcelType>
+template<class TrackCloudType>
+void Foam::BubbleParcel<ParcelType>::setCellValues
+(
+    TrackCloudType& cloud,
+    trackingData& td
+)
+{
+    ParcelType::setCellValues(cloud, td);
+
+    tetIndices tetIs = this->currentTetIndices();
+
+    td.alpha_L() = td.alpha_LInterp().interpolate(this->coordinates(), tetIs);
+}
+
+
+
+
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class ParcelType>
@@ -63,7 +85,13 @@ void Foam::BubbleParcel<ParcelType>::calc
     const scalar dt
 )
 {
-    this->intTime_ += dt;
+
+    ParcelType::calc(cloud, td, dt);
+
+    if ( td.alpha_L() < 0.5 )
+    {    this->intTime_ += dt; }
+    else
+    {    this->intTime_ = 0; }
 
 }
 

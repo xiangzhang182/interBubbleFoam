@@ -202,7 +202,8 @@ basicBubbleCloud bubbles
     rho,
     U,
     mu,
-    g
+    g,
+    alpha1
 );
 
 

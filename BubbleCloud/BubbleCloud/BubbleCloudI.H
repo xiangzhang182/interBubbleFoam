@@ -34,6 +34,11 @@ Foam::BubbleCloud<CloudType>::cloudCopy() const
     return *cloudCopyPtr_;
 }
 
+template<class CloudType>
+inline const Foam::volScalarField& Foam::BubbleCloud<CloudType>::alpha_L() const
+{
+    return alpha_L_;
+}
 
 
 

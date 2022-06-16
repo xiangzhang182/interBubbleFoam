@@ -11,7 +11,7 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "constant";
-    object      reactingCloud1Properties;
+    object      bubbleCloudProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -36,6 +36,7 @@ solution
         rho             cell;
         U               cellPoint;
         mu              cell;
+        alpha.water     cell;
     }
 
     integrationSchemes

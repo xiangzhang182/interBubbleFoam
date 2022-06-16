@@ -47,10 +47,12 @@ Foam::BubbleCloud<CloudType>::BubbleCloud
     const volVectorField& U,
     const volScalarField& mu,
     const dimensionedVector& g,
+    const volScalarField& alpha_L,
     bool readFields
 )
 :
-    CloudType(cloudName, rho, U, mu, g, false)
+    CloudType(cloudName, rho, U, mu, g, false),
+    alpha_L_(alpha_L)
 {
     if (this->solution().active())
     {
@@ -72,7 +74,8 @@ Foam::BubbleCloud<CloudType>::BubbleCloud
     const word& name
 )
 :
-    CloudType(c, name)
+    CloudType(c, name),
+    alpha_L_(c.alpha_L())
 {}
 
 
@@ -84,7 +87,8 @@ Foam::BubbleCloud<CloudType>::BubbleCloud
     const BubbleCloud<CloudType>& c
 )
 :
-    CloudType(mesh, name, c)
+    CloudType(mesh, name, c),
+    alpha_L_(c.alpha_L())
 {}
 
 
@@ -126,6 +130,16 @@ void Foam::BubbleCloud<CloudType>::evolve()
         typename parcelType::trackingData td(*this);
 
         this->solve(*this, td);
+        
+        //Remove particles on the interface for too long
+        for (parcelType& p : *this)
+        {
+            if (p.intTime() > 0.2)
+            {   CloudType::deleteParticle(p); }
+        
+        }
+        
+        
     }
 }
 

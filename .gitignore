@@ -1,2 +1,3 @@
 *.dep
 **/linux64*
+**/lnInclude

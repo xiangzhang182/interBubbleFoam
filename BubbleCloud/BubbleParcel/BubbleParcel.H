@@ -83,8 +83,53 @@ public:
     static const std::size_t sizeofFields;
 
 
-    //- Use base tracking data
-    typedef typename ParcelType::trackingData trackingData;
+    //- Need to add the liquid phase volume fraction to the tracking data
+    class trackingData
+    :
+        public ParcelType::trackingData
+    {
+    private:
+
+        // Private data
+
+            // Interpolators for continuous phase fields
+
+                //- Liquid phase volume fraction field interpolator
+                autoPtr<interpolation<scalar>> alpha_LInterp_;
+
+
+            // Cached continuous phase properties
+
+                //- Liquid phase volume fraction
+                scalar alpha_L_;
+
+
+    public:
+
+        typedef typename ParcelType::trackingData::trackPart trackPart;
+
+        // Constructors
+
+            //- Construct from components
+            template <class TrackCloudType>
+            inline trackingData
+            (
+                const TrackCloudType& cloud,
+                trackPart part = ParcelType::trackingData::tpLinearTrack
+            );
+
+
+        // Member functions
+            //- Return const access to the interpolator for 
+            inline const interpolation<scalar>& alpha_LInterp() const;
+
+            //- Return the continuous phase liquid volume fraction
+            inline scalar alpha_L() const;
+
+            //- Access the continuous phase liquid volume fraction
+            inline scalar& alpha_L();
+
+    };
 
 
 protected:
@@ -213,6 +258,22 @@ public:
             inline scalar& intTime();
 
         // Tracking
+            //- Set cell values
+            template<class TrackCloudType>
+            void setCellValues(TrackCloudType& cloud, trackingData& td);
+
+            //- Correct cell values using latest transfer information
+          /*
+            template<class TrackCloudType>
+            void cellValueSourceCorrection
+            (
+                TrackCloudType& cloud,
+                trackingData& td,
+                const scalar dt
+            );
+           */
+
+        
 
             //- update the parcel
             template<class TrackCloudType>
@@ -269,6 +330,7 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #include "BubbleParcelI.H"
+#include "BubbleParcelTrackingDataI.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
