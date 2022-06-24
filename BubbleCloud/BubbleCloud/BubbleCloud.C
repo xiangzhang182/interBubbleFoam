@@ -48,7 +48,7 @@ Foam::BubbleCloud<CloudType>::BubbleCloud
     const volScalarField& mu,
     const dimensionedVector& g,
     const volScalarField& alpha_L,
-    bool readFields
+    bool  readFields
 )
 :
     CloudType(cloudName, rho, U, mu, g, false),

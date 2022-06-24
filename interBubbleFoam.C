@@ -117,14 +117,46 @@ int main(int argc, char *argv[])
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
-	mu = turbulence->muEff();
+    	mu = turbulence->muEff();
 
         //CHW - Addition of command to add bubbles from reactingParcelFoam
         bubbles.evolve();
 
         //CHW - Addition of update of continuous phase volume fraction field based on DPMFoam.C
         alphac = max(1.0 - bubbles.theta(), alphacMin);
-        
+        alphac.correctBoundaryConditions();
+
+         Info<< "Continuous phase-1 volume fraction = "
+            << alphac.weightedAverage(mesh.Vsc()).value()
+            << "  Min(alphac) = " << min(alphac).value()
+            << "  Max(alphac) = " << max(alphac).value()
+            << endl;
+
+        alphacf = fvc::interpolate(alphac);
+        alphaRhoPhic = alphacf*rhoPhi;
+        alphaPhic = alphacf*phi;
+        alphacRho = alphac*rho;
+
+        fvVectorMatrix cloudSU(bubbles.SU(U));
+        volVectorField cloudVolSUSu
+        (
+            IOobject
+            (
+                "cloudVolSUSu",
+                runTime.timeName(),
+                mesh
+            ),
+            mesh,
+            dimensionedVector(cloudSU.dimensions()/dimVolume, Zero),
+            zeroGradientFvPatchVectorField::typeName
+        );
+
+        cloudVolSUSu.primitiveFieldRef() = -cloudSU.source()/mesh.V();
+        cloudVolSUSu.correctBoundaryConditions();
+
+        cloudSU.source() = vector::zero;
+
+
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
@@ -190,33 +222,15 @@ int main(int argc, char *argv[])
                 turbulence->correct();
             }
         }
-
-//Added by CHW to model parcel deletion at interface and update of continuous phase volume fraction
-typedef typename Foam::BubbleParcel<Foam::CollidingParcel<Foam::KinematicParcel<Foam::particle> > > parcelType;
-
-        forAllIter(basicBubbleCloud, bubbles, iter)
-        {
-    	    parcelType& p = iter();
-	    const label cID = p.cell();
-	    const scalar cAlpha2 = alpha2[cID];
-                
-            if (cAlpha2 > 0.5)
-            {
-                //bubbles.deleteParticle(p);
-            }
-        }
-
-       alphac = max(1.0 - bubbles.theta(), alphacMin);
-       alphac.storeOldTime();
-
+        
+        
         runTime.write();
 
         runTime.printExecutionTime(Info);
 
     }
-
+    
     Info<< "End\n" << endl;
-
     return 0;
 }
 
@@ -224,14 +238,14 @@ typedef typename Foam::BubbleParcel<Foam::CollidingParcel<Foam::KinematicParcel<
 
 
 /*
-	scalar&       Dh,     // initial horizontal bubble diameter 0.568     mm   (from experiment)
-	scalar&       Dv,     // initial vertical bubble diameter   0.568     mm
-	const scalar  sigma,  // surface tension                    19.7      g/s2
-	scalar&       deltaDv,// vertical diameter change           0.05      mm   (Guess)
-	const scalar  n,      // film interface mobility            2 
-	const scalar  nu,     // viscosity                          0.000006  m2/s
-	const scalar  rho,    // liquid density                     913       kg/m3
-	const scalar  h0,     // initial film thickness             0.1       mm   (Guess)
+	    scalar&       Dh,     // initial horizontal bubble diameter 0.568     mm   (from experiment)
+	    scalar&       Dv,     // initial vertical bubble diameter   0.568     mm
+	    const scalar  sigma,  // surface tension                    19.7      g/s2
+	    scalar&       deltaDv,// vertical diameter change           0.05      mm   (Guess)
+	    const scalar  n,      // film interface mobility            2 
+	    const scalar  nu,     // viscosity                          0.000006  m2/s
+	    const scalar  rho,    // liquid density                     913       kg/m3
+	    const scalar  h0,     // initial film thickness             0.1       mm   (Guess)
         const scalar  Cm,     // mass coefficient                   0.85   
         vector&       Ub,     // bubble impact velocity             0.0024    m/s  (from experiment)
 

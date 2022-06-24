@@ -126,7 +126,7 @@ public:
             const volScalarField& mu,
             const dimensionedVector& g,
             const volScalarField& alpha_L,
-            bool readFields = true
+            bool  readFields = true
         );
 
         //- Copy constructor with new name
@@ -209,7 +209,7 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-    #include "BubbleCloud.C"
+#include "BubbleCloud.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

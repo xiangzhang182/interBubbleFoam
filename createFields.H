@@ -61,24 +61,6 @@ volScalarField& alpha2(mixture.alpha2());
 const dimensionedScalar& rho1 = mixture.rho1();
 const dimensionedScalar& rho2 = mixture.rho2();
 
-//CHW - Added alphac from DPMFoam createFields.H
-Info << "Creating field alphac\n" << endl;
-// alphac must be constructed before the cloud
-// so that the drag-models can find it
-volScalarField alphac
-(
-    IOobject
-    (
-        IOobject::groupName("alpha", continuousPhaseName),
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedScalar(dimless, Zero)
-);
-
 // Need to store rho for ddt(rho, U)
 volScalarField rho
 (
@@ -107,6 +89,30 @@ surfaceScalarField rhoPhi
     ),
     fvc::interpolate(rho)*phi
 );
+
+//CHW - Added alphac from DPMFoam createFields.H
+Info << "Creating field alphac\n" << endl;
+// alphac must be constructed before the cloud
+// so that the drag-models can find it
+volScalarField alphac
+(
+    IOobject
+    (
+        "alphac",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar(dimless, Zero),
+    zeroGradientFvPatchScalarField::typeName
+);
+alphac.oldTime();
+
+volScalarField alphacRho(alphac*rho);
+alphacRho.oldTime();
+
 
 /*Removed incompressible turbulence model and added compressible turbulence
 model from reactingParcelFoam createFields.H*/
@@ -222,3 +228,12 @@ scalar alphacMin
 // Update alphac from the particle locations
 alphac = max(1.0 - bubbles.theta(), alphacMin);
 alphac.correctBoundaryConditions();
+
+surfaceScalarField alphacf("alphacf", fvc::interpolate(alphac));
+
+// Phase mass flux
+surfaceScalarField alphaRhoPhic("alphaRhoPhic", alphacf*rhoPhi);
+
+// Volumetric phase flux
+surfaceScalarField alphaPhic("alphaPhic", alphacf*phi);
+

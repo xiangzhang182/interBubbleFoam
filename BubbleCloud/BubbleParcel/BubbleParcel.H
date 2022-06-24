@@ -120,7 +120,7 @@ public:
 
 
         // Member functions
-            //- Return const access to the interpolator for 
+            //- Return const access to the interpolator for bubble lifetime at interface
             inline const interpolation<scalar>& alpha_LInterp() const;
 
             //- Return the continuous phase liquid volume fraction
@@ -250,11 +250,11 @@ public:
 
         // Access
 
-            //- Return const access to force
+            //- Return const access to bubble lifetime at interface 
             inline const scalar& intTime() const;
 
 
-            //- Return access to temperature
+            //- Return access to bubble lifetime at interface 
             inline scalar& intTime();
 
         // Tracking
@@ -335,7 +335,7 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-    #include "BubbleParcel.C"
+#include "BubbleParcel.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

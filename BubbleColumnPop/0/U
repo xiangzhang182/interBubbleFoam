@@ -39,7 +39,7 @@ boundaryField
     lowerMidWall
     {
         type            noSlip;
-         //type            fixedValue;
+        //type            fixedValue;
         //value           uniform (0 0.25 0);
     }
 

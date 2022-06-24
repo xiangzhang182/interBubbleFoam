@@ -53,7 +53,7 @@ constantProperties
     constantVolume  false;
 
     //Not sure whether alphaMax is actually used anywhere
-    alphaMax        1.0; //CHW - Added for determination of alphac in main solver
+    alphaMax        0.5; //CHW - Added for determination of alphac in main solver
 }
 
 
@@ -65,7 +65,7 @@ subModels
         gravity;
     }
 
-    injectionModels
+    injectionModels     // Xiang - Need to change injection domain and sizeDistribution
     {
         model1
         {

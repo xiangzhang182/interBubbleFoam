@@ -23,9 +23,9 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         5;
+endTime         2.5;
 
-deltaT          1e-05;
+deltaT          2e-05;
 
 writeControl    adjustableRunTime;
 
@@ -52,6 +52,70 @@ maxAlphaCo      0.5;
 
 maxDeltaT       1e-03;
 
+//Logging step to check for conservation
+functions
+{
+    ConservationTest
+	{
+		functionObjectLibs ("libutilityFunctionObjects.so");
+		enabled true;
+		type coded;
+		redirectType ConservationTest;
+		outputControl timeStep;
+		outputInterval 1;
+		
+		codeExecute
+		#{
+			
+			//***********************************************************************
+			//Calculate the volume flux out of the top patch (should be equal to the bubble generation rate)
+			//Get mesh boundary
+			const fvBoundaryMesh& bMesh = mesh().boundary();
+			//Next get wall patch:
+			label TopPatchID  = bMesh.findPatchID("atmosphere");
+			const fvPatch& TopPatch = bMesh[TopPatchID];
+            //Calculate the flux
+            const surfaceScalarField& phi = mesh().lookupObject<surfaceScalarField>("phi");
+            const scalarField& phi_Top = phi.boundaryField()[TopPatchID];
+			
+			//Average heat flux on lower half of wall:
+			const scalar V_dot_Top = gSum( phi_Top );
+			//***********************************************************************
+
+
+			//***********************************************************************
+            //Calculate total liquid volume
+            const volScalarField& alphaL = mesh().lookupObject<volScalarField>("alpha.water");
+            const scalar Vol_Liquid = gSum( alphaL.internalField() * mesh().V().field() );
+
+			//***********************************************************************
+
+			//***********************************************************************
+			//Finally print out results:
+
+			//Get t and dt for reference
+			scalar t = mesh().time().value();
+			scalar dt = mesh().time().deltaTValue();
+
+			//Now write out data:
+			if( Pstream::master() == true )
+			{
+				std::ofstream fs;
+				fs.open ("Logging.dat", std::fstream::app);
+				fs.precision(8);
+				fs << t << "\t" << dt << "\t" << V_dot_Top << "\t" << Vol_Liquid << "\n";
+				fs.close();
+			}
+			//***********************************************************************
+
+		#}; 
+
+		codeInclude
+		#{
+			#include <fstream>
+		#};
+	}
+};
 
 
 

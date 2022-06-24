@@ -56,7 +56,7 @@
     scalar cnCoeff = 1.0/(1.0 + ocCoeff);
 
     // Standard face-flux compression coefficient
-    surfaceScalarField phic(mixture.cAlpha()*mag(phi/mesh.magSf()));
+    surfaceScalarField phic(mixture.cAlpha()*mag(alphaPhic/mesh.magSf()));
 
     // Add the optional isotropic compression contribution
     if (icAlpha > 0)
@@ -88,12 +88,12 @@
         }
     }
 
-    tmp<surfaceScalarField> phiCN(phi);
+    tmp<surfaceScalarField> phiCN(alphaPhic);
 
     // Calculate the Crank-Nicolson off-centred volumetric flux
     if (ocCoeff > 0)
     {
-        phiCN = cnCoeff*phi + (1.0 - cnCoeff)*phi.oldTime();
+        phiCN = cnCoeff*alphaPhic + (1.0 - cnCoeff)*alphaPhic.oldTime();
     }
 
     if (MULESCorr)
@@ -104,7 +104,7 @@
         (
             (
                 LTS
-              ? fv::localEulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)
+              ? fv::localEulerDdtScheme<scalar>(mesh).fvmDdt(alphac,alpha1)
               : fv::EulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)
             )
           + fv::gaussConvectionScheme<scalar>
@@ -113,6 +113,7 @@
                 phiCN,
                 upwind<scalar>(mesh, phiCN)
             ).fvmDiv(phiCN, alpha1)
+          - fvm::Sp(fvc::ddt(alphac) + fvc::div(phiCN), alpha1)
        // - fvm::Sp(fvc::ddt(dimensionedScalar("1", dimless, 1), mesh)
        //           + fvc::div(phiCN), alpha1)
          ==
@@ -135,10 +136,11 @@
             Info<< "Applying the previous iteration compression flux" << endl;
             MULES::correct
             (
-                geometricOneField(),
+                alphac,
                 alpha1,
                 alphaPhi10,
                 talphaPhi1Corr0.ref(),
+                zeroField(), zeroField(),
                 oneField(),
                 zeroField()
             );
@@ -184,7 +186,7 @@
 
             MULES::correct
             (
-                geometricOneField(),
+                alphac,
                 alpha1,
                 talphaPhi1Un(),
                 talphaPhi1Corr.ref(),
@@ -212,7 +214,7 @@
 
             MULES::explicitSolve
             (
-                geometricOneField(),
+                alphac,
                 alpha1,
                 phiCN,
                 alphaPhi10,
