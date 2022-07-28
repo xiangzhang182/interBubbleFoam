@@ -38,12 +38,17 @@ License
 #include "makeParcelStochasticCollisionModels.H"
 #include "makeParcelSurfaceFilmModels.H"
 
+#include "InterfacePinningForce.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 	makeParcelCloudFunctionObjects(basicBubbleCloud);
 
 	// Kinematic sub-models
 	makeParcelForces(basicBubbleCloud);
+
+    //Additional special force for bubble pinning at the interface
+    makeParticleForceModelType(InterfacePinningForce, basicBubbleCloud);
 
 	makeParcelDispersionModels(basicBubbleCloud);
 	makeParcelInjectionModels(basicBubbleCloud);

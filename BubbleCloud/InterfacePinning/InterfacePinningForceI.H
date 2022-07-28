@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2013-2016 OpenFOAM Foundation
+    Copyright (C) 2011 OpenFOAM Foundation
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -25,38 +25,13 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 template<class CloudType>
-inline const Foam::BubbleCloud<CloudType>&
-Foam::BubbleCloud<CloudType>::cloudCopy() const
+inline const Foam::vector& Foam::InterfacePinningForce<CloudType>::g() const
 {
-    return *cloudCopyPtr_;
+    return g_;
 }
 
-template<class CloudType>
-inline const Foam::volScalarField& Foam::BubbleCloud<CloudType>::alpha_L() const
-{
-    return alpha_L_;
-}
-
-template<class CloudType>
-inline const Foam::volScalarField& Foam::BubbleCloud<CloudType>::VolPopped() const
-{
-    return VolPopped_;
-}
-
-
-template<class CloudType>
-inline const Foam::volVectorField& Foam::BubbleCloud<CloudType>::n_hat() const
-{
-    return n_hat_;
-}
-
-template<class CloudType>
-inline const Foam::immiscibleIncompressibleTwoPhaseMixture& Foam::BubbleCloud<CloudType>::mixture() const
-{
-    return mixture_;
-}
 
 // ************************************************************************* //

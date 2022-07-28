@@ -201,6 +201,7 @@ volScalarField mu
 /************************************************************************/
 #include "createMRF.H"
 
+
 Info<< "Constructing BubbleCloud" << endl;
 basicBubbleCloud bubbles
 (
@@ -209,7 +210,7 @@ basicBubbleCloud bubbles
     U,
     mu,
     g,
-    alpha1
+    mixture
 );
 
 

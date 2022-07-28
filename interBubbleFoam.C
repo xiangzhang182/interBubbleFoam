@@ -122,6 +122,11 @@ int main(int argc, char *argv[])
         //CHW - Addition of command to add bubbles from reactingParcelFoam
         bubbles.evolve();
 
+        //Rate of change (increase) of alpha_c due to bubbles popping and producing continuous gas phase
+        volScalarField DDT_Popped("DDT_Popped", bubbles.VolPopped()/runTime.deltaT()  );
+        DDT_Popped.ref() /= mesh.V();
+
+
         //CHW - Addition of update of continuous phase volume fraction field based on DPMFoam.C
         alphac = max(1.0 - bubbles.theta(), alphacMin);
         alphac.correctBoundaryConditions();

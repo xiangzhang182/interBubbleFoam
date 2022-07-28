@@ -47,12 +47,44 @@ Foam::BubbleCloud<CloudType>::BubbleCloud
     const volVectorField& U,
     const volScalarField& mu,
     const dimensionedVector& g,
-    const volScalarField& alpha_L,
+    const immiscibleIncompressibleTwoPhaseMixture& mixture,
     bool  readFields
 )
 :
     CloudType(cloudName, rho, U, mu, g, false),
-    alpha_L_(alpha_L)
+    mixture_(mixture),
+    alpha_L_(mixture.alpha1()),
+    VolPopped_
+    (
+        IOobject
+        (
+            "VolPopped",
+            rho.mesh().time().timeName(),
+            rho.mesh(),
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        rho.mesh(),
+        dimensionedScalar(dimensionSet(0, 3, 0, 0, 0, 0, 0) , Zero)
+    ),
+    
+    //To calculate pinning forces at the interface that keep the bubble from escaping, need access to interface normal field
+    n_hat_
+    (
+        IOobject
+        (
+            "n_hat",
+            rho.mesh().time().timeName(),
+            rho.mesh(),
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        rho.mesh(),
+        dimensionedVector("tmp",dimless,vector(0,0,0))
+    )
+
+    
+    
 {
     if (this->solution().active())
     {
@@ -75,7 +107,35 @@ Foam::BubbleCloud<CloudType>::BubbleCloud
 )
 :
     CloudType(c, name),
-    alpha_L_(c.alpha_L())
+    mixture_(c.mixture()),
+    alpha_L_(c.alpha_L()),
+    VolPopped_
+    (
+        IOobject
+        (
+            "VolPopped",
+            alpha_L_.mesh().time().timeName(),
+            alpha_L_.mesh(),
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        alpha_L_.mesh(),
+        dimensionedScalar(dimensionSet(0, 3, 0, 0, 0, 0, 0) , Zero)
+    ),
+    n_hat_
+    (
+        IOobject
+        (
+            "n_hat",
+            alpha_L_.mesh().time().timeName(),
+            alpha_L_.mesh(),
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        alpha_L_.mesh(),
+        dimensionedVector("tmp",dimless,vector(0,0,0))
+    )
+    
 {}
 
 
@@ -88,7 +148,35 @@ Foam::BubbleCloud<CloudType>::BubbleCloud
 )
 :
     CloudType(mesh, name, c),
-    alpha_L_(c.alpha_L())
+    mixture_(c.mixture()),
+    alpha_L_(c.alpha_L()),
+    VolPopped_
+    (
+        IOobject
+        (
+            "VolPopped",
+            alpha_L_.mesh().time().timeName(),
+            alpha_L_.mesh(),
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        alpha_L_.mesh(),
+        dimensionedScalar(dimensionSet(0, 3, 0, 0, 0, 0, 0) , Zero)
+    ),
+    n_hat_
+    (
+        IOobject
+        (
+            "n_hat",
+            alpha_L_.mesh().time().timeName(),
+            alpha_L_.mesh(),
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        alpha_L_.mesh(),
+        dimensionedVector("tmp",dimless,vector(0,0,0))
+    )
+       
 {}
 
 
@@ -127,15 +215,37 @@ void Foam::BubbleCloud<CloudType>::evolve()
 {
     if (this->solution().canEvolve())
     {
+        //Calculate current interface normal field
+        n_hat_ = mixture_.nearInterface()*fvc::grad(alpha_L_) / ( mag(fvc::grad(alpha_L_)) + mixture_.deltaN() );
+
+
         typename parcelType::trackingData td(*this);
 
         this->solve(*this, td);
+
+        //Reset popped field to zero
+        VolPopped_ = dimensionedScalar(dimensionSet(0, 3, 0, 0, 0, 0, 0) , Zero);
+
         
         //Remove particles on the interface for too long
         for (parcelType& p : *this)
         {
-            if (p.intTime() > 0.2)
-            {   CloudType::deleteParticle(p); }
+
+            //Empirical fit for bubble popping time for test case.
+            //In future, could be made more flexible/run time modifiable
+            
+            const scalar PopTime = 1668.8*( p.d() ) - 0.35795;
+
+            if (p.intTime() > PopTime)
+            {
+
+               //Account for volume from popping
+               VolPopped_[ p.cell() ] += p.volume();
+               
+          
+               CloudType::deleteParticle(p);
+               
+            }
         
         }
         

@@ -34,9 +34,13 @@
     // Update the pressure BCs to ensure flux consistency
     constrainPressure(p_rgh, U, phiHbyA, rAUcf, MRF);
 
+
     while (pimple.correctNonOrthogonal())
     {
         surfaceScalarField Dp("Dp", alphacf*rAUcf);
+        
+
+        
     
         // CHW - Added ddt(alphac) term from DPMFoam pEqn.H
         fvScalarMatrix p_rghEqn
@@ -44,6 +48,7 @@
             fvm::laplacian(Dp, p_rgh)
          ==
             fvc::ddt(alphac) + fvc::div(alphacf*phiHbyA)
+            - DDT_Popped
         );
 
         p_rghEqn.setReference(pRefCell, getRefCellValue(p_rgh, pRefCell));

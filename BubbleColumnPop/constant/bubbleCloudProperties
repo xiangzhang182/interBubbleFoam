@@ -48,7 +48,7 @@ solution
 
 constantProperties
 {
-    rho0            1.199;
+    rho0            20;//1.199;
 
     constantVolume  false;
 

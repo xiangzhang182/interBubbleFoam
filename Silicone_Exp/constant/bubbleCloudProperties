@@ -37,6 +37,7 @@ solution
         U               cellPoint;
         mu              cell;
         alpha.water     cell;
+        n_hat           cellPoint;
     }
 
     integrationSchemes
@@ -48,7 +49,7 @@ solution
 
 constantProperties
 {
-    rho0            5;
+    rho0            1.199;
 
     constantVolume  false;
 
@@ -63,6 +64,7 @@ subModels
     {
         sphereDrag;
         gravity;
+        InterfacePinning;
     }
 
     injectionModels     // Xiang - Need to change injection domain and sizeDistribution

@@ -45,8 +45,10 @@ SourceFiles
 #include "Cloud.H"
 #include "IOdictionary.H"
 #include "autoPtr.H"
+#include "fvCFD.H"
 #include "fvMesh.H"
 #include "volFields.H"
+#include "immiscibleIncompressibleTwoPhaseMixture.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -86,8 +88,7 @@ private:
 
         //- Cloud copy pointer
         autoPtr<BubbleCloud<CloudType>> cloudCopyPtr_;
-
-
+        
     // Private Member Functions
 
         //- No copy construct
@@ -104,8 +105,17 @@ protected:
         // References to the cloud sub-models
 	//Rattner - none needed
 
-	//References to the carrier/continuous phase field
-	const volScalarField& alpha_L_;
+        //Reference to mixture class for VOF model
+        const immiscibleIncompressibleTwoPhaseMixture& mixture_;
+
+	    //References to the carrier/continuous phase field
+	    const volScalarField& alpha_L_;
+	    
+        //- Volume of bubbles popped this time step
+        volScalarField VolPopped_;
+
+	    //-Interface normal field
+	    volVectorField n_hat_;
 
         // Initialisation
 
@@ -125,7 +135,7 @@ public:
             const volVectorField& U,
             const volScalarField& mu,
             const dimensionedVector& g,
-            const volScalarField& alpha_L,
+            const immiscibleIncompressibleTwoPhaseMixture& mixture,
             bool  readFields = true
         );
 
@@ -174,8 +184,18 @@ public:
             //- Return a reference to the cloud copy
             inline const BubbleCloud& cloudCopy() const;
 
+            //- Return const access to the mixture field
+            inline const immiscibleIncompressibleTwoPhaseMixture& mixture() const;
+
             //- Return const access to the carrier volume fraction field
             inline const volScalarField& alpha_L() const;
+
+
+            //- Return const access to the interface normal field fraction field
+            inline const volVectorField& n_hat() const;            
+            
+            //- Return const access to the carrier volume fraction field
+            inline const volScalarField& VolPopped() const;
 
 
         // Cloud evolution functions

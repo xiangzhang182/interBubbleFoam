@@ -97,11 +97,16 @@ public:
                 //- Liquid phase volume fraction field interpolator
                 autoPtr<interpolation<scalar>> alpha_LInterp_;
 
+                //- Interface normal field also needed
+                autoPtr<interpolation<vector>> n_hatInterp_;
 
             // Cached continuous phase properties
 
                 //- Liquid phase volume fraction
                 scalar alpha_L_;
+                
+                //- interface normal
+                vector n_hat_;
 
 
     public:
@@ -123,11 +128,18 @@ public:
             //- Return const access to the interpolator for bubble lifetime at interface
             inline const interpolation<scalar>& alpha_LInterp() const;
 
+            //- Return const access to the interpolator
+            inline const interpolation<vector>& n_hatInterp() const;
+
             //- Return the continuous phase liquid volume fraction
             inline scalar alpha_L() const;
 
             //- Access the continuous phase liquid volume fraction
             inline scalar& alpha_L();
+            
+            inline vector n_hat() const;
+            inline vector& n_hat();
+            
 
     };
 

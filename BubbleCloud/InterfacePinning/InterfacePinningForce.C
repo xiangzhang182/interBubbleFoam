@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2013-2017 OpenFOAM Foundation
+    Copyright (C) 2011-2017 OpenFOAM Foundation
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -25,81 +25,59 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "BubbleParcel.H"
-
-
-// * * * * * * * * * * *  Protected Member Functions * * * * * * * * * * * * //
-
-template<class ParcelType>
-template<class TrackCloudType>
-void Foam::BubbleParcel<ParcelType>::setCellValues
-(
-    TrackCloudType& cloud,
-    trackingData& td
-)
-{
-    ParcelType::setCellValues(cloud, td);
-
-    tetIndices tetIs = this->currentTetIndices();
-
-    td.alpha_L() = td.alpha_LInterp().interpolate(this->coordinates(), tetIs);
-    
-    td.n_hat() = td.n_hatInterp().interpolate(this->coordinates(), tetIs);
-}
-
-
-
-
+#include "InterfacePinningForce.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-template<class ParcelType>
-Foam::BubbleParcel<ParcelType>::BubbleParcel
+template<class CloudType>
+Foam::InterfacePinningForce<CloudType>::InterfacePinningForce
 (
-    const BubbleParcel<ParcelType>& p
+    CloudType& owner,
+    const fvMesh& mesh,
+    const dictionary& dict
 )
 :
-    ParcelType(p),
-    intTime_(p.intTime_)
+    ParticleForce<CloudType>(owner, mesh, dict, typeName, false),
+    g_(owner.g().value())
 {}
 
 
-template<class ParcelType>
-Foam::BubbleParcel<ParcelType>::BubbleParcel
-(
-    const BubbleParcel<ParcelType>& p,
-    const polyMesh& mesh
-)
+template<class CloudType>
+Foam::InterfacePinningForce<CloudType>::InterfacePinningForce(const InterfacePinningForce& gf)
 :
-    ParcelType(p, mesh),
-    intTime_(p.intTime_)
+    ParticleForce<CloudType>(gf),
+    g_(gf.g_)
+{}
+
+
+// * * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * //
+
+template<class CloudType>
+Foam::InterfacePinningForce<CloudType>::~InterfacePinningForce()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-template<class ParcelType>
-template<class TrackCloudType>
-void Foam::BubbleParcel<ParcelType>::calc
+template<class CloudType>
+Foam::forceSuSp Foam::InterfacePinningForce<CloudType>::calcNonCoupled
 (
-    TrackCloudType& cloud,
-    trackingData& td,
-    const scalar dt
-)
+    const typename CloudType::parcelType& p,
+    const typename CloudType::parcelType::trackingData& td,
+    const scalar dt,
+    const scalar mass,
+    const scalar Re,
+    const scalar muc
+) const
 {
+    forceSuSp value(Zero);
 
-    ParcelType::calc(cloud, td, dt);
+    //Adds a force from interface pinning
 
-    if ( td.alpha_L() < 0.5 )
-    {    this->intTime_ += dt; }
-    else
-    {    this->intTime_ = 0; }
+    value.Su() = mass*g_*(1.0 - td.rhoc()/p.rho()) * ( g_ & (-td.n_hat()) );
 
+    return value;
 }
 
-
-// * * * * * * * * * * * * * * IOStream operators  * * * * * * * * * * * * * //
-
-#include "BubbleParcelIO.C"
 
 // ************************************************************************* //

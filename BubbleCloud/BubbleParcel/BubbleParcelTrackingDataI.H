@@ -42,7 +42,16 @@ inline Foam::BubbleParcel<ParcelType>::trackingData::trackingData
             cloud.alpha_L()
         )
     ),
-    alpha_L_(Zero)
+    n_hatInterp_
+    (
+        interpolation<vector>::New
+        (
+            cloud.solution().interpolationSchemes(),
+            cloud.n_hat()
+        )
+    ),
+    alpha_L_(Zero),
+    n_hat_(0,0,0)
 {
    
    
@@ -53,6 +62,14 @@ inline const Foam::interpolation<Foam::scalar>&
 Foam::BubbleParcel<ParcelType>::trackingData::alpha_LInterp() const
 {
     return *alpha_LInterp_;
+}
+
+
+template<class ParcelType>
+inline const Foam::interpolation<Foam::vector>&
+Foam::BubbleParcel<ParcelType>::trackingData::n_hatInterp() const
+{
+    return *n_hatInterp_;
 }
 
 
@@ -68,5 +85,20 @@ inline Foam::scalar& Foam::BubbleParcel<ParcelType>::trackingData::alpha_L()
 {
     return alpha_L_;
 }
+
+template<class ParcelType>
+inline Foam::vector Foam::BubbleParcel<ParcelType>::trackingData::n_hat() const
+{
+    return n_hat_;
+}
+
+
+template<class ParcelType>
+inline Foam::vector& Foam::BubbleParcel<ParcelType>::trackingData::n_hat()
+{
+    return n_hat_;
+}
+
+
 
 // ************************************************************************* //
