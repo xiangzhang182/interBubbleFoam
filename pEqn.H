@@ -14,7 +14,7 @@
 
 //    if (p_rgh.needReference())               
 //    {
-        fvc::makeRelative(phiHbyA, U);  //Note - this line, and the subsequent make absolute don't exist in the MPPICinterFoam, I'm not sure why, but it may have to do with dynamic mesh support?
+//        fvc::makeRelative(phiHbyA, U);  //Note - this line, and the subsequent make absolute don't exist in the MPPICinterFoam, I'm not sure why, but it may have to do with dynamic mesh support?
 //        adjustPhi(phiHbyA, U, p_rgh);        
 //        fvc::makeAbsolute(phiHbyA, U);
 //    }
@@ -47,7 +47,8 @@
         (
             fvm::laplacian(Dp, p_rgh)
          ==
-            fvc::ddt(alphac) + fvc::div(alphacf*phiHbyA)
+              ddt_alphac //fvc::ddt(alphac) 
+            + fvc::div(alphacf*phiHbyA)
             - DDT_Popped
         );
 

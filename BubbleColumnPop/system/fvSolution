@@ -19,12 +19,15 @@ solvers
 {
     "alpha.water.*"
     {
-        nAlphaCorr      2;
-        nAlphaSubCycles 1;
-        cAlpha          1;
+        nAlphaCorr      2;              // 2 from Tutorial 
+        nAlphaSubCycles 1;              // 2
+        cAlpha          1;              // 1 
+        icAlpha         0;              // Added in Silicone_Exp case
+        scAlpha         0;              
+        
 
-        MULESCorr       yes;
-        nLimiterIter    5;
+        MULESCorr       yes;           
+        nLimiterIter    10;              // 10 
 
         solver          smoothSolver;
         smoother        symGaussSeidel;
@@ -66,9 +69,9 @@ solvers
 
 PIMPLE
 {
-    momentumPredictor   no;
-    nOuterCorrectors    1;
-    nCorrectors         3;
+    momentumPredictor   no;             
+    nOuterCorrectors    1;                
+    nCorrectors         3;           
     nNonOrthogonalCorrectors 0;
 }
 

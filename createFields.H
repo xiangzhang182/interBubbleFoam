@@ -238,3 +238,17 @@ surfaceScalarField alphaRhoPhic("alphaRhoPhic", alphacf*rhoPhi);
 // Volumetric phase flux
 surfaceScalarField alphaPhic("alphaPhic", alphacf*phi);
 
+volScalarField ddt_alphac
+(
+    IOobject
+    (
+        "ddt_alphac",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar(dimless/dimTime, Zero)
+);
+

@@ -22,9 +22,11 @@ solvers
         nAlphaCorr      2;
         nAlphaSubCycles 1;
         cAlpha          1;
+        icAlpha         0;
+        scAlpha         0;
 
         MULESCorr       yes;
-        nLimiterIter    5;
+        nLimiterIter    10;
 
         solver          smoothSolver;
         smoother        symGaussSeidel;
@@ -55,6 +57,14 @@ solvers
     }
 
     U
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-06;
+        relTol          0;
+    }
+    
+    UFinal
     {
         solver          smoothSolver;
         smoother        symGaussSeidel;

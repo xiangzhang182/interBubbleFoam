@@ -98,6 +98,9 @@ int main(int argc, char *argv[])
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
     Info<< "\nStarting time loop\n" << endl;
 
+//scalar ddt_ac_sum = 0;
+
+
     while (runTime.run())
     {
         #include "readDyMControls.H"
@@ -130,6 +133,16 @@ int main(int argc, char *argv[])
         //CHW - Addition of update of continuous phase volume fraction field based on DPMFoam.C
         alphac = max(1.0 - bubbles.theta(), alphacMin);
         alphac.correctBoundaryConditions();
+
+        ddt_alphac = fvc::ddt(alphac);
+
+//const volScalarField ddt_ac = fvc::ddt(alphac);
+
+//const scalar ddt_ac_sum = gSum( mag( ddt_ac.internalField() )() );
+
+//ddt_ac_sum = gSum( mag( fvc::ddt(alphac)().internalField() )() );
+//Info<< "1. ddt(alphac) " << ddt_ac_sum << endl;
+//Info<< "   oldalphac " << gSum( alphac.oldTime().internalField() ) << endl;
 
          Info<< "Continuous phase-1 volume fraction = "
             << alphac.weightedAverage(mesh.Vsc()).value()
@@ -204,8 +217,18 @@ int main(int argc, char *argv[])
                 }
             }
 
+//ddt_ac_sum = gSum( mag( fvc::ddt(alphac)().internalField() )() );
+//Info<< "2. ddt(alphac) " << ddt_ac_sum << endl;
+//Info<< "   oldalphac " << gSum( alphac.oldTime().internalField() ) << endl;
             #include "alphaControls.H"
+//ddt_ac_sum = gSum( mag( fvc::ddt(alphac)().internalField() )() );
+//Info<< "2.0 ddt(alphac) " << ddt_ac_sum << endl;            
+//Info<< "   oldalphac " << gSum( alphac.oldTime().internalField() ) << endl;
+            
             #include "alphaEqnSubCycle.H"
+
+//ddt_ac_sum = gSum( mag( fvc::ddt(alphac)().internalField() )() );
+//Info<< "3. ddt(alphac) " << ddt_ac_sum << endl;
 
             mixture.correct();
 

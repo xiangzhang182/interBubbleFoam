@@ -105,7 +105,7 @@
             (
                 LTS
               ? fv::localEulerDdtScheme<scalar>(mesh).fvmDdt(alphac,alpha1)
-              : fv::EulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)
+              : fv::EulerDdtScheme<scalar>(mesh).fvmDdt(alphac,alpha1)           // Add "alphac" in fvmDdt term 
             )
           + fv::gaussConvectionScheme<scalar>
             (
@@ -113,7 +113,8 @@
                 phiCN,
                 upwind<scalar>(mesh, phiCN)
             ).fvmDiv(phiCN, alpha1)
-          - fvm::Sp(fvc::ddt(alphac) + fvc::div(phiCN), alpha1)
+           - fvm::Sp(ddt_alphac + fvc::div(phiCN), alpha1)
+       //  - fvm::Sp(fvc::ddt(alphac) + fvc::div(phiCN), alpha1)
        // - fvm::Sp(fvc::ddt(dimensionedScalar("1", dimless, 1), mesh)
        //           + fvc::div(phiCN), alpha1)
          ==

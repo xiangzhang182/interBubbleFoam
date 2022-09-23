@@ -23,7 +23,7 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         10;
+endTime         2;
 
 deltaT          1e-05;
 
@@ -50,7 +50,7 @@ adjustTimeStep  yes;
 maxCo           0.5;
 maxAlphaCo      0.5;
 
-maxDeltaT       1e-03;
+maxDeltaT       2e-03;
 
 //Logging step to check for conservation
 functions
@@ -86,7 +86,8 @@ functions
 			//***********************************************************************
             //Calculate total liquid volume
             const volScalarField& alphaL = mesh().lookupObject<volScalarField>("alpha.water");
-            const scalar Vol_Liquid = gSum( alphaL.internalField() * mesh().V().field() );
+            const volScalarField& alphac = mesh().lookupObject<volScalarField>("alphac");
+            const scalar Vol_Liquid = gSum( alphaL.internalField() * alphac.internalField() * mesh().V().field() );
 
 			//***********************************************************************
 

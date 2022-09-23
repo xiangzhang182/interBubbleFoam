@@ -234,7 +234,7 @@ void Foam::BubbleCloud<CloudType>::evolve()
             //Empirical fit for bubble popping time for test case.
             //In future, could be made more flexible/run time modifiable
             
-            const scalar PopTime = 1668.8*( p.d() ) - 0.35795;
+            const scalar PopTime = ( 1668.8*( p.d() ) - 0.35795);
 
             if (p.intTime() > PopTime)
             {

@@ -90,7 +90,7 @@ void Foam::BubbleParcel<ParcelType>::calc
 
     ParcelType::calc(cloud, td, dt);
 
-    if ( td.alpha_L() < 0.5 )
+    if ( td.alpha_L() < 0.95 )          //   0.9
     {    this->intTime_ += dt; }
     else
     {    this->intTime_ = 0; }

@@ -74,7 +74,7 @@ Foam::forceSuSp Foam::InterfacePinningForce<CloudType>::calcNonCoupled
 
     //Adds a force from interface pinning
 
-    value.Su() = mass*g_*(1.0 - td.rhoc()/p.rho()) * ( g_ & (-td.n_hat()) );
+    value.Su() = mass*g_*(1.0 - td.rhoc()/p.rho()) * ( g_ & (-td.n_hat()) ) * pos(0.05 - td.alpha_L());    // 
 
     return value;
 }

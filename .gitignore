@@ -1,5 +1,6 @@
 *.dep
 **/linux64*
 **/lnInclude
+**/dynamicCode
 octave-workspace
 

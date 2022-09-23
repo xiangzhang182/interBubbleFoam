@@ -33,10 +33,10 @@ solution
 
     interpolationSchemes
     {
-        rho             cell;
+        rho             cellPoint;
         U               cellPoint;
-        mu              cell;
-        alpha.water     cell;
+        mu              cellPoint;
+        alpha.water     cellPoint;
         n_hat           cellPoint;
     }
 
@@ -78,7 +78,7 @@ subModels
             nParticle       1;
             patch           Inlet;
             duration        100;
-            parcelsPerSecond 400;
+            parcelsPerSecond 40;
             U0              (0 0 0.2);
             flowRateProfile constant 1;
             sizeDistribution
@@ -86,8 +86,8 @@ subModels
                 type        uniform;
                 uniformDistribution
                 {
-                     minValue       0.0004;
-                     maxValue       0.0008;
+                     minValue       0.0008;
+                     maxValue       0.0016;
                 }
 
                 /*
