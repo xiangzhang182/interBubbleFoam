@@ -49,7 +49,7 @@
          ==
               ddt_alphac //fvc::ddt(alphac) 
             + fvc::div(alphacf*phiHbyA)
-            - DDT_Popped
+            //- DDT_Popped
         );
 
         p_rghEqn.setReference(pRefCell, getRefCellValue(p_rgh, pRefCell));

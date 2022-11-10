@@ -218,15 +218,22 @@ void Foam::BubbleCloud<CloudType>::evolve()
         //Calculate current interface normal field
         n_hat_ = mixture_.nearInterface()*fvc::grad(alpha_L_) / ( mag(fvc::grad(alpha_L_)) + mixture_.deltaN() );
 
-
         typename parcelType::trackingData td(*this);
 
-        this->solve(*this, td);
+        this->solve(*this, td);         
+    }
+}
 
+
+//- Handle popping of bubbles
+template<class CloudType>
+void Foam::BubbleCloud<CloudType>::HandleBubblePopping()
+{
+    if (this->solution().canEvolve())
+    {
         //Reset popped field to zero
         VolPopped_ = dimensionedScalar(dimensionSet(0, 3, 0, 0, 0, 0, 0) , Zero);
 
-        
         //Remove particles on the interface for too long
         for (parcelType& p : *this)
         {
@@ -250,8 +257,42 @@ void Foam::BubbleCloud<CloudType>::evolve()
         }
         
         
+        //If bubble fraction in a cell exceeds a limit, then pop all bubbles in that cell:
+         const scalar alphac_thresh = 0.6;
+        
+        //List of bubbles in each cell
+        List<DynamicList<parcelType*>>& BubblesInCells = this->cellOccupancy();
+        
+        //Continuous-phase volume fraction
+        const scalarField alphac = 1.0 - this->theta()().internalField();
+        
+        //scan over all cells j
+        for (label j = 0; j < BubblesInCells.size(); j++ )
+        {
+            if (alphac[j] < alphac_thresh)
+            {
+                DynamicList<parcelType*>& BubblesToPop = BubblesInCells[j];
+                for (parcelType* ptrBubble : BubblesToPop)
+                {
+                   //Account for volume from popping
+                   VolPopped_[j] += ptrBubble->volume();
+                                 
+                   CloudType::deleteParticle(*ptrBubble);
+                } 
+                
+                Info<<"Popped" << endl;
+                
+                //CHECK - Does delete particle already handle this?
+                BubblesToPop.clear();
+            }
+        
+        
+        }
+        
+        
     }
 }
+
 
 
 template<class CloudType>

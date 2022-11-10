@@ -208,6 +208,9 @@ public:
 
             //- Evolve the cloud
             void evolve();
+            
+            //- Handle popping of bubbles
+            void HandleBubblePopping();
 
 
 

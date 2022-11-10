@@ -122,12 +122,9 @@ int main(int argc, char *argv[])
 
     	mu = turbulence->muEff();
 
+
         //CHW - Addition of command to add bubbles from reactingParcelFoam
         bubbles.evolve();
-
-        //Rate of change (increase) of alpha_c due to bubbles popping and producing continuous gas phase
-        volScalarField DDT_Popped("DDT_Popped", bubbles.VolPopped()/runTime.deltaT()  );
-        DDT_Popped.ref() /= mesh.V();
 
 
         //CHW - Addition of update of continuous phase volume fraction field based on DPMFoam.C
@@ -136,13 +133,7 @@ int main(int argc, char *argv[])
 
         ddt_alphac = fvc::ddt(alphac);
 
-//const volScalarField ddt_ac = fvc::ddt(alphac);
 
-//const scalar ddt_ac_sum = gSum( mag( ddt_ac.internalField() )() );
-
-//ddt_ac_sum = gSum( mag( fvc::ddt(alphac)().internalField() )() );
-//Info<< "1. ddt(alphac) " << ddt_ac_sum << endl;
-//Info<< "   oldalphac " << gSum( alphac.oldTime().internalField() ) << endl;
 
          Info<< "Continuous phase-1 volume fraction = "
             << alphac.weightedAverage(mesh.Vsc()).value()
@@ -152,6 +143,7 @@ int main(int argc, char *argv[])
 
         alphacf = fvc::interpolate(alphac);
         alphaRhoPhic = alphacf*rhoPhi;
+
         alphaPhic = alphacf*phi;
         alphacRho = alphac*rho;
 
@@ -250,6 +242,20 @@ int main(int argc, char *argv[])
                 turbulence->correct();
             }
         }
+        
+        
+        
+        //Handle bubble popping
+        //Rate of change (increase) of alpha_c due to bubbles popping and producing continuous gas phase
+        bubbles.HandleBubblePopping();
+
+        const volScalarField alphac_old = alphac;
+        volScalarField VolPoppedSpecific = bubbles.VolPopped();
+        VolPoppedSpecific.ref() /= mesh.V();
+        alphac += VolPoppedSpecific;
+
+        alpha1 *= alphac_old / alphac;
+        
         
         
         runTime.write();

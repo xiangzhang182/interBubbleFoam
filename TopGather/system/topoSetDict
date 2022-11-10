@@ -33,14 +33,12 @@ actions
         name    s1;
         type    faceSet;
         action  subset;
-        source  cylinderToFace;        
+        source  boxToFace;    
         sourceInfo
 	    {
-
-//       set s1;
-       	    p1       (0.020 0.020  -1);    // start point on cylinder axis
-       	    p2       (0.020 0.020  1);     // end point on cylinder axis
-       	    radius   0.008;
+           
+           box (0.005 0 0) (0.015 0.006 0.002);
+      
     	}
     }
 

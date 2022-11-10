@@ -10,40 +10,22 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    object      topoSetDict;
+    object      decomposeParDict;
 }
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-actions
-(
+numberOfSubdomains 2;
 
-    {
-        name    s1;
-        type    faceSet;
-        action  new;
-        source  patchToFace;
-        sourceInfo
-	    {
-       	    patch     "Walls";
-    	}
-    }
+method          simple;
 
-    {
-        name    s1;
-        type    faceSet;
-        action  subset;
-        source  cylinderToFace;        
-        sourceInfo
-	    {
+coeffs
+{
+    n           (2 1 1);
+}
 
-//       set s1;
-       	    p1       (0.020 0.020  -1);    // start point on cylinder axis
-       	    p2       (0.020 0.020  1);     // end point on cylinder axis
-       	    radius   0.008;
-    	}
-    }
+distributed     no;
 
-);
+roots           ( );
+
 
 // ************************************************************************* //
