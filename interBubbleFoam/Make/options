@@ -2,6 +2,8 @@ EXE_INC = \
     -ggdb3 -DFULLDEBUG \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/finiteVolume \
+    -I$(LIB_SRC)/finiteArea/lnInclude \
+    -I$(LIB_SRC)/fvOptions/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/sampling/lnInclude \
     -I$(LIB_SRC)/dynamicFvMesh/lnInclude \
@@ -15,7 +17,7 @@ EXE_INC = \
     -I$(LIB_SRC)/lagrangian/basic/lnInclude \
     -I$(LIB_SRC)/lagrangian/distributionModels/lnInclude \
     -I$(LIB_SRC)/lagrangian/intermediate/lnInclude \
-    -IBubbleCloud/lnInclude \
+    -I../BubbleCloud/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/specie/lnInclude \
     -I$(LIB_SRC)/transportModels/compressible/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
@@ -23,7 +25,8 @@ EXE_INC = \
     -I$(LIB_SRC)/thermophysicalModels/radiation/lnInclude \
     -I$(LIB_SRC)/regionModels/regionModel/lnInclude \
     -I$(LIB_SRC)/regionModels/surfaceFilmModels/lnInclude \
-
+    -I$(LIB_SRC)/regionFaModels/lnInclude \
+    -I$(LIB_SRC)/faOptions/lnInclude
 
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
@@ -32,6 +35,7 @@ EXE_LIBS = \
     -lmeshTools \
     -llagrangian \
     -llagrangianIntermediate \
+    -lthermophysicalProperties \
     -ldistributionModels \
     -llagrangianBubbleCloud \
     -llagrangianTurbulence \
@@ -42,9 +46,12 @@ EXE_LIBS = \
     -lincompressibleTransportModels \
     -linterfaceProperties \
     -limmiscibleIncompressibleTwoPhaseMixture \
+    -ltwoPhaseProperties \
     -lturbulenceModels \
     -lincompressibleTurbulenceModels \
     -lDPMTurbulenceModels \
     -lregionModels \
+    -lregionFaModels \
     -lsurfaceFilmModels \
-    -lwaveModels
+    -lwaveModels \
+    -lfiniteArea

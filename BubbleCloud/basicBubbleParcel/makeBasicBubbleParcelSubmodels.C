@@ -38,6 +38,12 @@ License
 #include "makeParcelStochasticCollisionModels.H"
 #include "makeParcelSurfaceFilmModels.H"
 
+// MPPIC sub-models
+#include "makeMPPICParcelDampingModels.H"
+#include "makeMPPICParcelIsotropyModels.H"
+#include "makeMPPICParcelPackingModels.H"
+
+
 #include "InterfacePinningForce.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -58,5 +64,9 @@ License
 	makeParcelStochasticCollisionModels(basicBubbleCloud);
 	makeParcelSurfaceFilmModels(basicBubbleCloud);
 
+    // MPPIC sub-models
+    makeMPPICParcelDampingModels(basicBubbleCloud);
+    makeMPPICParcelIsotropyModels(basicBubbleCloud);
+    makeMPPICParcelPackingModels(basicBubbleCloud);
 
 // ************************************************************************* //
