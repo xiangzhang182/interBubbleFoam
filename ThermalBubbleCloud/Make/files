@@ -1,0 +1,7 @@
+
+
+/* Thermal Bubble Cloud */
+basicThermalBubbleParcel/defineBasicThermalBubbleParcel.C
+basicThermalBubbleParcel/makeBasicThermalBubbleParcelSubmodels.C
+
+LIB = $(FOAM_USER_LIBBIN)/liblagrangianThermalBubbleCloud

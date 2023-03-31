@@ -5,6 +5,7 @@ cd "${0%/*}" || exit                                # Run from this directory
 #------------------------------------------------------------------------------
 
 wmake libso BubbleCloud
-wmake interBubbleFoam
+wmake libso ThermalBubbleCloud
+wmake interBubbleEvapFoam
 
 #------------------------------------------------------------------------------

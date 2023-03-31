@@ -1,0 +1,123 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2212                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     interBubbleEvapFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         10;
+
+deltaT          2e-3;
+
+writeControl    adjustable;
+
+writeInterval   0.1;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           0.01;
+
+maxAlphaCo      0.01;
+
+maxDeltaT       1e-1;
+
+
+//Logging step to check for conservation 
+functions
+{
+    ConservationTest
+	{
+		functionObjectLibs ("libutilityFunctionObjects.so");
+		enabled true;
+		type coded;
+		redirectType ConservationTest;
+		outputControl timeStep;
+		outputInterval 1;
+		
+		codeExecute
+		#{
+			
+			//***********************************************************************
+			//Calculate the volume flux out of the top patch (should be equal to the bubble generation rate)
+			//Get mesh boundary
+			const fvBoundaryMesh& bMesh = mesh().boundary();
+			//Next get wall patch:
+			label TopPatchID  = bMesh.findPatchID("Top");
+			const fvPatch& TopPatch = bMesh[TopPatchID];
+            //Calculate the flux
+            const surfaceScalarField& phi = mesh().lookupObject<surfaceScalarField>("phi");
+            const scalarField& phi_Top = phi.boundaryField()[TopPatchID];
+			
+			//Average heat flux on lower half of wall:
+			const scalar V_dot_Top = gSum( phi_Top );
+			//***********************************************************************
+
+
+			//***********************************************************************
+            //Calculate total liquid volume
+            const volScalarField& alphaL = mesh().lookupObject<volScalarField>("alpha.liquid");
+            const scalar Vol_Liquid = gSum( alphaL.internalField() * mesh().V().field() );
+
+			//***********************************************************************
+
+			//***********************************************************************
+			//Finally print out results:
+
+			//Get t and dt for reference
+			scalar t = mesh().time().value();
+			scalar dt = mesh().time().deltaTValue();
+
+			//Now write out data:
+			if( Pstream::master() == true )
+			{
+				std::ofstream fs;
+				fs.open ("Logging.dat", std::fstream::app);
+				fs.precision(8);
+				fs << t << "\t" << dt << "\t" << V_dot_Top << "\t" << Vol_Liquid << "\n";
+				fs.close();
+			}
+			//***********************************************************************
+
+		#}; 
+
+		codeInclude
+		#{
+			#include <fstream>
+		#};
+	}
+};
+
+
+
+// ************************************************************************* //

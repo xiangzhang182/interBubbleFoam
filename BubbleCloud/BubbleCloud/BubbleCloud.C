@@ -238,10 +238,14 @@ void Foam::BubbleCloud<CloudType>::HandleBubblePopping()
         for (parcelType& p : *this)
         {
 
-            //Empirical fit for bubble popping time for test case.
-            //In future, could be made more flexible/run time modifiable
+            // Empirical fit for bubble popping time for test case.
+            // In future, could be made more flexible/run time modifiable
             
-            const scalar PopTime = ( 1668.8*( p.d() ) - 0.35795);
+            // const scalar PopTime = ( 1668.8*( p.d() ) - 0.35795);
+            
+            // Model from (2018, Aging and burst of surface bubbles)
+            
+            const scalar PopTime = 5.916 * pow((p.d()/0.00148),0.5);  
 
             if (p.intTime() > PopTime)
             {

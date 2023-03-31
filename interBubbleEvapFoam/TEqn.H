@@ -5,9 +5,9 @@
     const dimensionedScalar Cp1 = thermo->Cp1();
     const dimensionedScalar Cp2 = thermo->Cp2();
 
-    rhoCp = rho*cp;
+    rhoCp = rho*cp*alphac; //Updated to weight for alphac
 
-    kappaEff = thermo->kappa() + rho*cp*turbulence->nut()/Prt;
+    kappaEff = (thermo->kappa() + rho*cp*turbulence->nut()/Prt)*alphac;
 
     const surfaceScalarField rhoCpPhi
     (
@@ -22,6 +22,9 @@
        - fvm::Sp(fvc::ddt(rhoCp) + fvc::div(rhoCpPhi), T)
        - fvm::laplacian(kappaEff, T)
        + mixture->TSource()
+       + bubbles.TSource()
+       //Todo: add source term from heat transfer with Lagrangian cloud
+       
     );
 
 

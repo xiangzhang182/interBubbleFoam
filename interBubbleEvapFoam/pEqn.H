@@ -1,13 +1,20 @@
 {
-    volScalarField rAU("rAU", 1.0/UEqn.A());
-    surfaceScalarField rAUf("rAUf", fvc::interpolate(rAU));
-    volVectorField HbyA(constrainHbyA(rAU*UEqn.H(), U, p_rgh));
+
+
+    //Instead, use rAUc and rAUcf created in UEqn
+//    volScalarField rAU("rAU", 1.0/UEqn.A());
+//    surfaceScalarField rAUf("rAUf", fvc::interpolate(rAU));
+
+
+    volVectorField HbyA(constrainHbyA(rAUc*UEqn.H(), U, p_rgh));
+    
     surfaceScalarField phiHbyA
     (
         "phiHbyA",
-        (fvc::interpolate(HbyA) & mesh.Sf())
-      + fvc::interpolate(rho*rAU)*fvc::ddtCorr(U, phi)
+        fvc::flux(HbyA)
+      + alphacf*fvc::interpolate(rho*rAUc)*fvc::ddtCorr(U, phi)
     );
+    
     adjustPhi(phiHbyA, U, p_rgh);
 
     surfaceScalarField phig
@@ -15,13 +22,13 @@
         (
             interface.surfaceTensionForce()
           - ghf*fvc::snGrad(rho)
-        )*rAUf*mesh.magSf()
+        )*rAUcf*mesh.magSf()
     );
 
     phiHbyA += phig;
 
     // Update the pressure BCs to ensure flux consistency
-    constrainPressure(p_rgh, U, phiHbyA, rAUf);
+    constrainPressure(p_rgh, U, phiHbyA, rAUcf);
 
     Pair<tmp<volScalarField>> vDot = mixture->vDot();
     const volScalarField& vDotc = vDot[0]();
@@ -29,14 +36,21 @@
 
     while (pimple.correctNonOrthogonal())
     {
-        fvScalarMatrix p_rghEqn
-        (
-            fvc::div(phiHbyA)
-          - fvm::laplacian(rAUf, p_rgh)
+    
+       surfaceScalarField Dp("Dp", alphacf*rAUcf);
+    
+       fvScalarMatrix p_rghEqn
+       (
+           fvm::laplacian(Dp, p_rgh)
           ==
-            -vDotv - vDotc
+            ddt_alphac
+          + fvc::div(alphacf*phiHbyA)
+          + vDotv + vDotc
+
         );
 
+
+/*
 //Rattner - block of sanity checks
 
 Info<< endl << "================================" << endl;
@@ -62,11 +76,12 @@ const scalar TotalLiquidVolumeEvaporated = gSum( mDote.field() * mesh.V().field(
 Info<<"Total Volume of Liquid Evaporated: " << TotalLiquidVolumeEvaporated << endl;
 
 
-
 //Info<< "VDotv = " << gMax(vDotv.field() + vDotc.field()) << endl;
 vDotNet = vDotv + vDotc;
 
 Info<< "================================" << endl << endl;
+*/
+
 
 
         p_rghEqn.setReference(pRefCell, pRefValue);
@@ -75,9 +90,9 @@ Info<< "================================" << endl << endl;
 
         if (pimple.finalNonOrthogonalIter())
         {
-            phi = phiHbyA + p_rghEqn.flux();
+            phi = phiHbyA - p_rghEqn.flux()/alphacf;
 
-            U = HbyA + rAU*fvc::reconstruct((phig + p_rghEqn.flux())/rAUf);
+            U = HbyA + rAUc*fvc::reconstruct((phig - p_rghEqn.flux()/alphacf)/rAUcf);
             U.correctBoundaryConditions();
             fvOptions.correct(U);
         }

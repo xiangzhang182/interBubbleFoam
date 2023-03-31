@@ -16,13 +16,17 @@
     {
         fvScalarMatrix alpha1Eqn
         (
-            fv::EulerDdtScheme<scalar>(mesh).fvmDdt(alpha1)
+            fv::EulerDdtScheme<scalar>(mesh).fvmDdt(alphac,alpha1) //Adding weighting factor of alphac
+            
           + fv::gaussConvectionScheme<scalar>
             (
                 mesh,
                 phi,
                 upwind<scalar>(mesh, phi)
             ).fvmDiv(phi, alpha1)
+            
+           - fvm::Sp(ddt_alphac, alpha1) //Adding product rule term from DDt term
+            
           - fvm::Sp(divU, alpha1)
          ==
             fvm::Sp(vDotvmcAlphal, alpha1)
@@ -69,7 +73,7 @@
 
             MULES::correct
             (
-                geometricOneField(),
+                alphac,
                 alpha1,
                 talphaPhi(),
                 talphaPhiCorr.ref(),
@@ -97,7 +101,7 @@
         {
             MULES::explicitSolve
             (
-                geometricOneField(),
+                alphac,
                 alpha1,
                 phi,
                 talphaPhiCorr.ref(),

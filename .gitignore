@@ -3,4 +3,4 @@
 **/lnInclude
 **/dynamicCode
 octave-workspace
-
+*.vscode

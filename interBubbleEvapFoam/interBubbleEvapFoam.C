@@ -24,7 +24,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    interCondensatingEvaporatingFoam
+    interBubbleEvapFoam
 
 Group
     grpMultiphaseSolvers
@@ -33,12 +33,7 @@ Description
     Solver for two incompressible, non-isothermal immiscible fluids with
     phase-change (evaporation-condensation) between a fluid and its vapour.
     Uses a VOF (volume of fluid) phase-fraction based interface capturing
-    approach.
-
-    The momentum, energy and other fluid properties are of the "mixture" and a
-    single momentum equation is solved.
-
-    Turbulence modelling is generic, i.e. laminar, RAS or LES may be selected.
+    approach. Also with Lagrangian modeling of dispersed phase bubbles.
 
 \*---------------------------------------------------------------------------*/
 
@@ -58,6 +53,7 @@ Description
 #include "fvOptions.H"
 #include "CorrectPhi.H"
 
+#include "basicThermalBubbleCloud.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -68,8 +64,7 @@ int main(int argc, char *argv[])
         "Solver for two incompressible, non-isothermal immiscible fluids with"
         " phase-change,"
         " using VOF phase-fraction based interface capturing.\n"
-        "With optional mesh motion and mesh topology changes including"
-        " adaptive re-meshing."
+        "dispersed vapor bubbles tracked with Lagrangian method."
     );
 
     #include "postProcess.H"
@@ -94,21 +89,6 @@ int main(int argc, char *argv[])
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-volScalarField vDotNet
-(
-    IOobject
-    (
-        "vDotNet",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedScalar("tmp", dimless/dimTime, 0)
-);
-
-
     Info<< "\nStarting time loop\n" << endl;
 
     while (runTime.run())
@@ -130,6 +110,50 @@ volScalarField vDotNet
         ++runTime;
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
+
+        //Update Lagrangian cloud
+        mu = thermo->mu();
+        bubbles.evolve(); //Update state of bubbles, motion, etc.
+
+        //Continuous phases volume fraction
+        alphac = max(1.0 - bubbles.theta(), alphacMin);
+        alphac.correctBoundaryConditions();
+
+        ddt_alphac = fvc::ddt(alphac);
+
+        //Additional Lagrangian field calculations:
+        Info<< "Continuous phase-1 volume fraction = "
+            << alphac.weightedAverage(mesh.Vsc()).value()
+            << "  Min(alphac) = " << min(alphac).value()
+            << "  Max(alphac) = " << max(alphac).value()
+            << endl;
+
+        alphacf = fvc::interpolate(alphac);
+        alphaRhoPhic = alphacf*rhoPhi;
+
+        alphaPhic = alphacf*phi;
+        alphacRho = alphac*rho;
+
+        fvVectorMatrix cloudSU(bubbles.SU(U));
+        volVectorField cloudVolSUSu
+        (
+            IOobject
+            (
+                "cloudVolSUSu",
+                runTime.timeName(),
+                mesh
+            ),
+            mesh,
+            dimensionedVector(cloudSU.dimensions()/dimVolume, Zero),
+            zeroGradientFvPatchVectorField::typeName
+        );
+
+        cloudVolSUSu.primitiveFieldRef() = -cloudSU.source()/mesh.V();
+        cloudVolSUSu.correctBoundaryConditions();
+
+        cloudSU.source() = vector::zero;
+
+
 
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
@@ -193,7 +217,21 @@ volScalarField vDotNet
             }
         }
 
-        rho = alpha1*rho1 + alpha2*rho2;
+        rho = alpha1*rho1 + alpha2*rho2; //Why is this done again at the end of the loop?
+
+
+        //Handle bubble popping
+        //Rate of change (increase) of alpha_c due to bubbles popping and producing continuous gas phase
+        bubbles.HandleBubblePopping();
+
+        const volScalarField alphac_old = alphac;
+        volScalarField VolPoppedSpecific = bubbles.VolPopped();
+        VolPoppedSpecific.ref() /= mesh.V();
+        alphac += VolPoppedSpecific;
+
+        alpha1 *= alphac_old / alphac;
+
+
 
         runTime.write();
 

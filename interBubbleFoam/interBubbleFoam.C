@@ -271,34 +271,3 @@ int main(int argc, char *argv[])
 // ************************************************************************* //
 
 
-/*
-	    scalar&       Dh,     // initial horizontal bubble diameter 0.568     mm   (from experiment)
-	    scalar&       Dv,     // initial vertical bubble diameter   0.568     mm
-	    const scalar  sigma,  // surface tension                    19.7      g/s2
-	    scalar&       deltaDv,// vertical diameter change           0.05      mm   (Guess)
-	    const scalar  n,      // film interface mobility            2 
-	    const scalar  nu,     // viscosity                          0.000006  m2/s
-	    const scalar  rho,    // liquid density                     913       kg/m3
-	    const scalar  h0,     // initial film thickness             0.1       mm   (Guess)
-        const scalar  Cm,     // mass coefficient                   0.85   
-        vector&       Ub,     // bubble impact velocity             0.0024    m/s  (from experiment)
-
-        scalar&       Rf,     // liquid film radius                 
-        scalar&       Ek,     // kinetic energy
-        scalar&       tcal,   // calculated liquid film drainage time
-        scalar&       deltaP, // capillary presure
-        scalar&       h,      // liquid film thickness
-        vector&       Fdyn,   // temporary force 
-        scalar&       Vb,     // bubble volume
-        
-        scalar Rf     =  sqr((Ek*Dh)/(2*3.14*sigma*deltaDv));
-        scalar Ek     =  0.5*Cm*rho*Vb*pow2(Ub);
-        scalar tcal   =  (3*nu*rho*pow2(Rf)*(1/pow2(h)-1/pow2(h0)))/(4*n*deltaP);
-        scalar deltaP =  Fdyn/(3.14*pow2(Rf));
-        scalar h      =  
-        scalar Fdyn   =  Ek/deltaDv;
-        scalar Vb     =  1.33*3.14*pow2(0.5*Dh)*0.5*Dv; 
-
-   
-
-*/

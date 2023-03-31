@@ -12,6 +12,21 @@ volScalarField p_rgh
     mesh
 );
 
+word continuousPhaseName
+(
+    IOdictionary
+    (
+        IOobject
+        (
+            "transportProperties",
+            runTime.constant(),
+            mesh,
+            IOobject::MUST_READ
+        )
+    ).lookup("continuousPhase")
+);
+
+
 Info<< "Reading field U\n" << endl;
 volVectorField U
 (
@@ -74,6 +89,31 @@ surfaceScalarField rhoPhi
     ),
     fvc::interpolate(rho)*phi
 );
+
+
+//Added alphac from DPMFoam createFields.H
+Info << "Creating field alphac\n" << endl;
+// alphac must be constructed before the cloud
+// so that the drag-models can find it
+volScalarField alphac
+(
+    IOobject
+    (
+        "alphac",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar(dimless, Zero),
+    zeroGradientFvPatchScalarField::typeName
+);
+alphac.oldTime();
+
+volScalarField alphacRho(alphac*rho);
+alphacRho.oldTime();
+
 
 // Construct interface from alpha1 distribution
 interfaceProperties interface
@@ -154,3 +194,82 @@ volScalarField rhoCp
 );
 
 rhoCp.oldTime();
+
+//Create a holder for the effective viscosity in the continuous phase
+/*
+volScalarField mu
+(
+    IOobject
+    (
+        "mu",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    turbulence->muEff()
+);
+*/
+// Need to store mu as incompressibleTwoPhaseMixture does not store it
+volScalarField mu
+(
+    IOobject
+    (
+        "mu",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT
+    ),
+    thermo->mu(),
+    calculatedFvPatchScalarField::typeName
+);
+
+Info<< "Constructing BubbleCloud" << endl;
+basicThermalBubbleCloud bubbles
+(
+    "bubbleCloud",
+    rho,
+    U,
+    mu,
+    g,
+    thermo(),
+    interface
+);
+
+
+//Addition of particle fraction upper limit from DPMFoam createFields.H
+scalar alphacMin
+(
+    1.0
+  - (
+        bubbles.particleProperties().subDict("constantProperties")
+       .get<scalar>("alphaMax")
+    )
+);
+
+// Update alphac from the particle locations
+alphac = max(1.0 - bubbles.theta(), alphacMin);
+alphac.correctBoundaryConditions();
+
+surfaceScalarField alphacf("alphacf", fvc::interpolate(alphac));
+
+// Phase mass flux
+surfaceScalarField alphaRhoPhic("alphaRhoPhic", alphacf*rhoPhi);
+
+// Volumetric phase flux
+surfaceScalarField alphaPhic("alphaPhic", alphacf*phi);
+
+volScalarField ddt_alphac
+(
+    IOobject
+    (
+        "ddt_alphac",
+        runTime.timeName(),
+        mesh,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar(dimless/dimTime, Zero)
+);
+
