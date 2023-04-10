@@ -1,8 +1,8 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2212                                 |
-|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|  \\    /   O peration     | Version:  v1812                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 FoamFile
@@ -10,47 +10,47 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
+    location    "system";
     object      controlDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     interBubbleEvapFoam;
+application     interBubbleFoam;
 
-startFrom       startTime;
+startFrom       latestTime;
 
 startTime       0;
 
 stopAt          endTime;
 
-endTime         0.04;
+endTime         5;
 
-deltaT          5e-4;
+deltaT          1e-05;
 
-writeControl    adjustable;
+writeControl    adjustableRunTime;
 
-writeInterval   0.0005;
+writeInterval   0.1;
 
 purgeWrite      0;
 
-writeFormat     ascii;
+writeFormat     ascii;  
 
-writePrecision  6;
+writePrecision  10;
 
-writeCompression off;
+writeCompression off;   
 
 timeFormat      general;
 
 timePrecision   6;
 
-runTimeModifiable yes;
+runTimeModifiable true;
 
-adjustTimeStep  no;
+adjustTimeStep  yes;
 
-maxCo           0.01;
+maxCo           0.5;
+maxAlphaCo      0.5;
 
-maxAlphaCo      0.01;
-
-maxDeltaT       1e-1;
+maxDeltaT       2e-03;
 
 
 //Logging step to check for conservation 
@@ -58,10 +58,10 @@ functions
 {
     ConservationTest
 	{
-		libs ("libutilityFunctionObjects.so");
+		functionObjectLibs ("libutilityFunctionObjects.so");
 		enabled true;
 		type coded;
-		name ConservationTest;
+		redirectType ConservationTest;
 		outputControl timeStep;
 		outputInterval 1;
 		
@@ -73,7 +73,7 @@ functions
 			//Get mesh boundary
 			const fvBoundaryMesh& bMesh = mesh().boundary();
 			//Next get wall patch:
-			label TopPatchID  = bMesh.findPatchID("Top");
+			label TopPatchID  = bMesh.findPatchID("atmosphere");
 			const fvPatch& TopPatch = bMesh[TopPatchID];
             //Calculate the flux
             const surfaceScalarField& phi = mesh().lookupObject<surfaceScalarField>("phi");
@@ -86,24 +86,12 @@ functions
 
 			//***********************************************************************
             //Calculate total liquid volume
-            const volScalarField& alphaL = mesh().lookupObject<volScalarField>("alpha.liquid");
+            const volScalarField& alphaL = mesh().lookupObject<volScalarField>("alpha.water");
             const scalar Vol_Liquid = gSum( alphaL.internalField() * mesh().V().field() );
-
-			//***********************************************************************
-
-
-			//***********************************************************************
-			//Print out the bubble diameter
-			
-			/*const basicThermalBubbleCloud& bubbles = mesh().lookupObject<basicThermalBubbleCloud>("bubbleCloud");
-        	forAllIter(basicThermalBubbleCloud, parcels, iter)
-        	{
-	    	    basicThermalBubbleParcel& p = iter();
-			    //const label cID = p.cell();
-	    		//const scalar cAlpha2 = alpha2[cID];
-				Info<< "Bubble size = " << p.d() << endl;
-            } */
-
+            
+            // Need to print out surface bubble time (intTime)
+            
+            
 
 			//***********************************************************************
 
@@ -130,10 +118,10 @@ functions
 		codeInclude
 		#{
 			#include <fstream>
-			// #include "../basicThermalBubbleCloud.H"
 		#};
 	}
 };
+
 
 
 

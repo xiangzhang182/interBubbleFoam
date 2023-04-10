@@ -117,7 +117,24 @@ Foam::ThermalBubbleCloud<CloudType>::ThermalBubbleCloud
             this->mesh(),
             dimensionedScalar(dimEnergy/dimTime/dimTemperature, Zero)
         )
+    ),
+    VLTrans_
+    (
+        new volScalarField::Internal
+        (
+            IOobject
+            (
+                this->name() + ":VLTrans",
+                this->db().time().timeName(),
+                this->db(),
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+            ),
+            this->mesh(),
+            dimensionedScalar(dimVolume, Zero)
+        )
     )
+
 {
     if (this->solution().active())
     {
@@ -206,6 +223,22 @@ Foam::ThermalBubbleCloud<CloudType>::ThermalBubbleCloud
             this->mesh(),
             dimensionedScalar(dimEnergy/dimTime/dimVolume/dimTemperature, Zero)
         )
+    ),
+    VLTrans_
+    (
+        new volScalarField::Internal
+        (
+            IOobject
+            (
+                this->name() + ":VLTrans",
+                this->db().time().timeName(),
+                this->db(),
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+            ),
+            this->mesh(),
+            dimensionedScalar(dimVolume, Zero)
+        )
     )
     
 {}
@@ -252,7 +285,8 @@ Foam::ThermalBubbleCloud<CloudType>::ThermalBubbleCloud
         dimensionedVector("tmp",dimless,vector(0,0,0))
     ),
     QTrans_(nullptr),
-    TCoeff_(nullptr)
+    TCoeff_(nullptr),
+    VLTrans_(nullptr)
        
 {}
 
@@ -293,6 +327,7 @@ void Foam::ThermalBubbleCloud<CloudType>::resetSourceTerms()
     CloudType::resetSourceTerms();
     QTrans_->field() = 0.0;
     TCoeff_->field() = 0.0;
+    VLTrans_->field() = 0.0;
 }
 
 template<class CloudType>
@@ -305,6 +340,7 @@ void Foam::ThermalBubbleCloud<CloudType>::relaxSources
 
     this->relax(QTrans_(), cloudOldTime.QTrans(), "T");
     this->relax(TCoeff_(), cloudOldTime.TCoeff(), "T");
+    this->relax(VLTrans_(), cloudOldTime.VLTrans(), "T");
 }
 
 template<class CloudType>
@@ -314,6 +350,7 @@ void Foam::ThermalBubbleCloud<CloudType>::scaleSources()
 
     this->scale(QTrans_(), "T");
     this->scale(TCoeff_(), "T");
+    this->scale(VLTrans_(), "T");
 }
 
 template<class CloudType>
@@ -357,7 +394,7 @@ void Foam::ThermalBubbleCloud<CloudType>::HandleBubblePopping()
             //Empirical fit for bubble popping time for test case.
             //In future, could be made more flexible/run time modifiable
             
-            const scalar PopTime = 0.1;    // ( 1668.8*( p.d() ) - 0.35795);   
+            const scalar PopTime = 0.1;    // ( 1668.8*( p.d() ) - 0.35795);   5.916 * pow((p.d()/0.00148),0.5); 
 
             if (p.intTime() > PopTime)
             {
@@ -374,7 +411,7 @@ void Foam::ThermalBubbleCloud<CloudType>::HandleBubblePopping()
         
         
         //If bubble fraction in a cell exceeds a limit, then pop all bubbles in that cell:
-         const scalar alphac_thresh = 0.6;
+         const scalar alphac_thresh = 0.6;  
         
         //List of bubbles in each cell
         List<DynamicList<parcelType*>>& BubblesInCells = this->cellOccupancy();

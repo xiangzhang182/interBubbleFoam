@@ -134,6 +134,9 @@ protected:
             //- Coefficient for carrier phase T equation [W/(m^3*K)]
             autoPtr<volScalarField::Internal> TCoeff_;
 
+            //- Volume source in continuous liquid from bubbles evaporating or condensing [m^3]
+            autoPtr<volScalarField::Internal> VLTrans_;
+
 
 public:
 
@@ -212,8 +215,7 @@ public:
             //- Return const access to the carrier volume fraction field
             inline const volScalarField& VolPopped() const;
   
-            // Rattner - convert to a temperature basis
-            
+      
        // Sources
            
             // Enthalpy
@@ -230,9 +232,18 @@ public:
             //- Return const coefficient for carrier phase T equation
             inline const volScalarField::Internal& TCoeff() const;
 
+            //- Return Bubbles -> Liquid source term
+            inline volScalarField::Internal& VLTrans();
+
+            //- Return Bubbles -> Liquid source term
+            inline const volScalarField::Internal& VLTrans() const;
+
             //- Return heat transfer source term [W/m^3]
             //- Note - modified to not require passing in enthalpy/temperature field
             inline tmp<fvScalarMatrix> TSource() const;
+
+            //- Returns volume source term for pressure equation from bubbles condensing or evaporating
+            inline tmp<volScalarField> VLSource() const;
 
 
 

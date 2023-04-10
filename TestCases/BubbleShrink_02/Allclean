@@ -1,0 +1,10 @@
+
+cd ${0%/*} || exit 1                        # Run from this directory
+. $WM_PROJECT_DIR/bin/tools/CleanFunctions  # Tutorial clean functions
+
+cleanCase
+\cp 0/alpha.liquid.0 0/alpha.liquid
+rm Logging.dat
+touch BubbleShrink.foam
+
+#------------------------------------------------------------------------------

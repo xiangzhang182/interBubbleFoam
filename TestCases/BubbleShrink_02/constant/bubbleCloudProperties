@@ -1,0 +1,142 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1812                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      bubbleCloudProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solution
+{
+    active          true;   
+    coupled         true;                   
+    transient       yes;
+    cellValueSourceCorrection on;
+    maxCo           0.3;
+
+    sourceTerms                           // Need to add volume source term 
+    {
+        schemes
+        {
+            U               explicit 1;
+            T               semiImplicit 1;
+        }
+    }
+
+    interpolationSchemes                 
+        
+    {
+        rho             cellPoint;
+        U               cellPoint;
+        mu              cellPoint;
+        alpha.liquid    cellPoint;
+        T               cellPoint;            
+        n_hat           cellPoint;
+        cp              cellPoint;
+        kappa           cellPoint;
+    }
+
+    integrationSchemes
+    {
+        U               Euler;
+    }
+}
+
+
+constantProperties
+{
+    rho0            50;
+
+    constantVolume  false;    
+
+    //Not sure whether alphaMax is actually used anywhere
+    alphaMax        0.5;  //CHW - Added for determination of alphac in main solver
+}
+
+
+subModels
+{
+    particleForces     // Do we need more here? Lift, virtual mass? 
+    {
+        sphereDrag;
+        gravity;
+        InterfacePinning;
+    }
+
+    injectionModels    
+    {
+        model1
+        {
+            type            patchInjection;
+            SOI             0.001;
+            massTotal       20;
+            parcelBasisType fixed;
+            nParticle       1;
+            patch           Base;
+            duration        1;
+            parcelsPerSecond 5E4;               
+            U0              (0 0.01 0);
+            flowRateProfile constant 1;
+            sizeDistribution
+            {
+               /* type        uniform;
+                uniformDistribution
+                {
+                     minValue       0.0001;
+                     maxValue       0.0002;
+                } */ 
+
+               
+                type        fixedValue;
+                fixedValueDistribution
+                {
+                     value       0.003;       // Cell size 16*16 mm
+                }
+                
+            }
+        }
+    }
+
+    collisionModel none; 
+
+    dispersionModel none;     //stochasticDispersionRAS;
+
+    patchInteractionModel standardWallInteraction;
+   
+    compositionModel singleMixtureFraction;
+
+    phaseChangeModel none;    
+
+    devolatilisationModel none; 
+
+    surfaceReactionModel none; 
+
+    stochasticCollisionModel none; 
+
+    surfaceFilmModel none; 
+
+    radiation       off;  
+
+    standardWallInteractionCoeffs
+    {
+        type            rebound;
+    }
+
+}
+
+cloudFunctions
+{
+  
+}
+
+
+// ************************************************************************* //

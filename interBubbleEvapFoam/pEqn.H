@@ -46,6 +46,7 @@
             ddt_alphac
           + fvc::div(alphacf*phiHbyA)
           + vDotv + vDotc
+          - bubbles.VLSource()()
 
         );
 

@@ -132,6 +132,9 @@ void Foam::ThermalBubbleParcel<ParcelType>::calc
     // Heat transfer from the particle to the carrier phase
     scalar dQTrans = 0.0;
 
+    // Continuous-phase volume source due to bubble evaporation or condensation
+    scalar dVLTrans = 0.0;
+
 
     // Heat transfer
     // ~~~~~~~~~~~~~
@@ -147,7 +150,8 @@ void Foam::ThermalBubbleParcel<ParcelType>::calc
             Pr,
             kappa,
             dQTrans,
-            SpT
+            SpT,
+            dVLTrans
         );
 
     //ASR TODO - for now, just transfer heat to carrier phase, later add mass transfer as well
@@ -192,6 +196,9 @@ void Foam::ThermalBubbleParcel<ParcelType>::calc
 
         // Update heat transfer
         cloud.TCoeff()[this->cell()] += np0*SpT;
+
+        // Update the volume transfer between bubbles and continuous phase
+        cloud.VLTrans()[this->cell()] += np0*dVLTrans;
     }
 
 }
@@ -212,7 +219,8 @@ Foam::scalar Foam::ThermalBubbleParcel<ParcelType>::calcHeatTransfer
     const scalar Pr,
     const scalar kappa,
     scalar& dQTrans,
-    scalar& SpT
+    scalar& SpT,
+    scalar& dVLTrans
 )
 {
     //Rattner - in the future, can add a switch to the cloud dictionary to activate/deactivate heat transfer
@@ -222,10 +230,11 @@ Foam::scalar Foam::ThermalBubbleParcel<ParcelType>::calcHeatTransfer
     //}
 
     const scalar d = this->d();
-    const scalar rho = this->rho();
+    const scalar rho_V = this->rho();                      //  cloud.thermo().rho2().value() ? 
+    const scalar rho_L = cloud.thermo().rho1().value();
     const scalar As = this->areaS(d);
     const scalar V = this->volume(d);
-    const scalar m = rho*V;
+    const scalar m = rho_V*V;
     const scalar h_LV = cloud.thermo().Hf2().value() - cloud.thermo().Hf1().value();    // Latent heat of vaparization 
 
     // Calc heat transfer coefficient
@@ -243,7 +252,10 @@ Foam::scalar Foam::ThermalBubbleParcel<ParcelType>::calcHeatTransfer
     
     const scalar dM = Q/h_LV;
     
-    const scalar dnew = pow( max( (6*dM)/ (rho * constant::mathematical::pi) + pow(d,3.0), 0), 1.0/3.0 );
+    //Negative for condensation 
+    dVLTrans = -dM/rho_L;       
+
+    const scalar dnew = pow( max( (6*dM)/ (rho_V * constant::mathematical::pi) + pow(d,3.0), 0), 1.0/3.0 );
 
     
     //Positive for evaporation  

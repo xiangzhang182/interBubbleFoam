@@ -22,13 +22,13 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         0.04;
+endTime         0.3;
 
-deltaT          5e-4;
+deltaT          1e-5;
 
 writeControl    adjustable;
 
-writeInterval   0.0005;
+writeInterval   0.005;
 
 purgeWrite      0;
 
@@ -44,13 +44,13 @@ timePrecision   6;
 
 runTimeModifiable yes;
 
-adjustTimeStep  no;
+adjustTimeStep  yes;
 
 maxCo           0.01;
 
 maxAlphaCo      0.01;
 
-maxDeltaT       1e-1;
+maxDeltaT       1E-3;
 
 
 //Logging step to check for conservation 
@@ -87,7 +87,8 @@ functions
 			//***********************************************************************
             //Calculate total liquid volume
             const volScalarField& alphaL = mesh().lookupObject<volScalarField>("alpha.liquid");
-            const scalar Vol_Liquid = gSum( alphaL.internalField() * mesh().V().field() );
+            const volScalarField& alphac = mesh().lookupObject<volScalarField>("alphac");
+            const scalar Vol_Liquid = gSum( alphaL.internalField() * alphac.internalField() * mesh().V().field() );
 
 			//***********************************************************************
 

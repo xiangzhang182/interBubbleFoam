@@ -193,9 +193,8 @@ protected:
         const scalar Pr,           // Prandtl number - surface
         const scalar kappa,        // Thermal conductivity - surface
         scalar& dQTrans,           // Heat transfer to carrier
-        
-        //ASR - Maybe below item is the proportional source term
-        scalar& SpT                // linearised heat transfer coefficient
+        scalar& SpT,               // linearised heat transfer coefficient
+        scalar& dVLTrans           // Volume source in continuous liquid from bubbles condensing/evaporating
     );
     
     

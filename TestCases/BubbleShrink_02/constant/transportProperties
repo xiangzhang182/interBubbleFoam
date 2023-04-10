@@ -1,0 +1,51 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2212                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+phases          (liquid vapor);
+
+continuousPhase liquid;   
+
+sigma           0.01;
+
+liquid
+{
+    transportModel  Newtonian;
+    nu              1E-6;      
+    rho             1000;            
+
+    Cp              2000;         
+    Cv              2000;
+    kappa           0.1;
+    hf              0;
+}
+
+vapor
+{
+    transportModel  Newtonian;
+    nu              1e-06;
+    rho             50;
+
+    Cp              1500;      
+    Cv              1500;      
+    kappa           0.02;      
+    hf              1E5;
+}
+
+Prt             1;              // Turbulence Pr
+
+
+// ************************************************************************* //

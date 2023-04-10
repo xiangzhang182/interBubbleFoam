@@ -105,6 +105,24 @@ Foam::ThermalBubbleCloud<CloudType>::TCoeff() const
     return *TCoeff_;
 }
 
+
+template<class CloudType>
+inline Foam::DimensionedField<Foam::scalar, Foam::volMesh>&
+Foam::ThermalBubbleCloud<CloudType>::VLTrans()
+{
+    return *VLTrans_;
+}
+
+
+template<class CloudType>
+inline const Foam::DimensionedField<Foam::scalar, Foam::volMesh>&
+Foam::ThermalBubbleCloud<CloudType>::VLTrans() const
+{
+    return *VLTrans_;
+}
+
+
+
 //Rattner - convert to a temperature basis
 template<class CloudType>
 inline Foam::tmp<Foam::fvScalarMatrix>
@@ -144,6 +162,48 @@ Foam::ThermalBubbleCloud<CloudType>::TSource( ) const
     return tmp<fvScalarMatrix>::New(T_, dimEnergy/dimTime/dimVolume);
 }
 
+
+//Rattner - bubbles to liquid volume source
+template<class CloudType>
+inline Foam::tmp<Foam::volScalarField>  // Need to doublecheck here
+Foam::ThermalBubbleCloud<CloudType>::VLSource( ) const
+{
+
+    //If solution is coupled, return a tmp vol scalar field for volume source, scaled by dt and cell size
+
+    //If not coupled, return 0 tmp Vol Scalar field
+
+    tmp<volScalarField> VLSource_
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                this->name() + ":VLSource",
+                this->db().time().timeName(),
+                this->db(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            this->mesh(),
+            dimensionedScalar(dimless/dimTime, Zero)
+        )
+    );
+
+    if (this->solution().coupled())
+    {
+        scalarField& VLSource_prim = VLSource_.ref().primitiveFieldRef();
+
+        const scalarField& dV = this->mesh().V() ;
+        const scalar dt = this->db().time().deltaTValue();
+        
+        VLSource_prim = VLTrans().field() /(dV*dt) ;
+    }
+
+    //If the solution is not coupled, return an empty fvScalar field
+    return VLSource_;
+}
 
 
 // ************************************************************************* //
