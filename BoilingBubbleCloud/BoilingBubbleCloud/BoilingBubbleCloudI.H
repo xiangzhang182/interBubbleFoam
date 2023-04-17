@@ -207,18 +207,6 @@ Foam::BoilingBubbleCloud<CloudType>::VLSource( ) const
 
 
 
-//Definition for nucleation site functions
-template<class CloudType>
-Foam::BoilingBubbleCloud<CloudType>::NucleationSite::NucleationSite
-(
-    vector Position,
-    scalar Radius
-)
-:
-Position_(Position),
-Radius_(Radius)
-{
-}
 
 
 

@@ -1,4 +1,5 @@
 EXE_INC = \
+    -ggdb3 -DFULLDEBUG \
     -I$(FOAM_SOLVERS)/multiphase/interCondensatingEvaporatingFoam/temperaturePhaseChangeTwoPhaseMixtures/lnInclude \
     -I../interBubbleEvapFoam \
     -I$(LIB_SRC)/finiteVolume/lnInclude \

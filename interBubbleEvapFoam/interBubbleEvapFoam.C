@@ -51,7 +51,8 @@ Description
 #include "turbulenceModel.H"
 #include "pimpleControl.H"
 #include "fvOptions.H"
-#include "CorrectPhi.H"
+//#include "CorrectPhi.H"
+#include "cfdTools/general/CorrectPhi/CorrectPhi.H"
 
 #include "basicThermalBubbleCloud.H"
 

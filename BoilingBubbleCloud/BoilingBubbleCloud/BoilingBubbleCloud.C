@@ -27,6 +27,9 @@ License
 
 #include "BoilingBubbleCloud.H"
 
+#include "distributionModel.H"
+
+
 // * * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * //
 
 template<class CloudType>
@@ -133,7 +136,16 @@ Foam::BoilingBubbleCloud<CloudType>::BoilingBubbleCloud
             this->mesh(),
             dimensionedScalar(dimVolume, Zero)
         )
-    )
+    ),
+	NucleateBoilingProperties
+	(
+	    this->particleProperties().subOrEmptyDict
+        (
+            "NucleateBoiling",
+            keyType::REGEX,
+            this->solution().active()
+        )
+	)
 
 {
     if (this->solution().active())
@@ -145,6 +157,8 @@ Foam::BoilingBubbleCloud<CloudType>::BoilingBubbleCloud
             parcelType::readFields(*this);
             this->deleteLostParticles();
         }
+		
+		InitNucleateBoiling();
     }
     if (this->solution().resetSourcesOnStartup())
     {
@@ -239,7 +253,16 @@ Foam::BoilingBubbleCloud<CloudType>::BoilingBubbleCloud
             this->mesh(),
             dimensionedScalar(dimVolume, Zero)
         )
-    )
+    ),
+	NucleateBoilingProperties
+	(
+	    this->particleProperties().subOrEmptyDict
+        (
+            "NucleateBoiling",
+            keyType::REGEX,
+            this->solution().active()
+        )
+	)
     
 {}
 
@@ -286,7 +309,16 @@ Foam::BoilingBubbleCloud<CloudType>::BoilingBubbleCloud
     ),
     QTrans_(nullptr),
     TCoeff_(nullptr),
-    VLTrans_(nullptr)
+    VLTrans_(nullptr),
+	NucleateBoilingProperties
+	(
+	    this->particleProperties().subOrEmptyDict
+        (
+            "NucleateBoiling",
+            keyType::REGEX,
+            this->solution().active()
+        )
+	)
        
 {}
 
@@ -463,6 +495,157 @@ void Foam::BoilingBubbleCloud<CloudType>::info()
 
     //Todo - print out some relevant info
 }
+
+
+
+//Nucleate boiling model functionality below
+template<class CloudType>
+void Foam::BoilingBubbleCloud<CloudType>::InitNucleateBoiling()
+{
+	if ( NucleateBoilingProperties.lookupOrDefault("active", false) )
+	{
+		Info<< "Initializing nucleate boiling model" << endl;
+		
+		const word& PatchName = NucleateBoilingProperties.getWord("patch");
+		NucleateBoilingPatchID = this->mesh().boundaryMesh().findPatchID(PatchName);
+		if (NucleateBoilingPatchID < 0)
+		{
+			FatalErrorInFunction
+				<< "Requested patch " << PatchName << " not found" << nl
+				<< "Available patches are: " << this->mesh().boundaryMesh().names() << nl
+				<< exit(FatalError);
+		}
+		
+		
+		//Now - based on dictionary info, randomly distribute nucleation sites:
+		//Copying approach from patchinjection
+		
+		const polyPatch& patch = this->mesh().boundaryMesh()[NucleateBoilingPatchID];
+		const pointField& points = patch.points();
+
+		const labelList& cellOwners = patch.faceCells();
+		
+		// Triangulate the patch faces and create addressing
+		DynamicList<label> triToFace(2*patch.size());
+		DynamicList<scalar> triMagSf(2*patch.size());
+		DynamicList<face> triFace(2*patch.size());
+		DynamicList<face> tris(5);
+
+		// Set zero value at the start of the tri area list
+		triMagSf.append(0.0);
+
+		forAll(patch, facei)
+		{
+			const face& f = patch[facei];
+
+			tris.clear();
+			f.triangles(points, tris);
+
+			forAll(tris, i)
+			{
+				triToFace.append(facei);
+				triFace.append(tris[i]);
+				triMagSf.append(tris[i].mag(points));
+			}
+		}
+
+		//Build up cumulative area fraction over triangles (from faces)
+		for (label i = 1; i < triMagSf.size(); i++)
+		{
+			triMagSf[i] += triMagSf[i-1];
+		}
+				
+		const scalar patchArea_Proc( triMagSf[triMagSf.size()-1] );
+		
+		
+		const scalarField magSf(mag(patch.faceAreas()));
+		const vectorField patchNormals = patch.faceAreas()/magSf;
+			
+		scalar patchArea_Global = patchArea_Proc;
+		reduce(patchArea_Global, sumOp<scalar>());
+		Info<< "Total boiling patch area: " << patchArea_Global << endl;
+		Info<< "Nucleation sites (global): " << NucleationSiteCount_Global << endl;
+
+
+		//Now create nucleation sites on area
+		const scalar SiteDensity = NucleateBoilingProperties.lookupOrDefault("SiteDensity", 0.0);
+		if (SiteDensity == 0)
+		{
+			FatalErrorInFunction
+				<< "Undefined nucleate boiling site density" << nl
+				<< exit(FatalError);
+		}
+		NucleationSiteCount_Proc = ceil( SiteDensity * patchArea_Proc );
+		NucleationSiteCount_Global = NucleationSiteCount_Proc;
+		reduce(NucleationSiteCount_Global, sumOp<label>());
+		
+		
+		
+		//Initialize nucleation site lists per processor with correct number of nucleation sites
+		NucleationSite_Positions.resize(NucleationSiteCount_Proc, Zero);
+		NucleationSite_Radii.resize(NucleationSiteCount_Proc, Zero);
+		NucleationSite_Normals.resize(NucleationSiteCount_Proc, Zero);
+		NucleationSite_BubbleIDs.resize(NucleationSiteCount_Proc, -1);
+		
+		//Now, create nucleation sites, 1 by 1
+		Random rnd;
+		
+		//Object for generating site size:
+		const autoPtr<distributionModel> SizeDistribution =
+			distributionModel::New
+			(
+				NucleateBoilingProperties.subDict("RadiusDistribution"),
+				rnd
+			);
+		
+		for (label i = 0; i < NucleationSiteCount_Proc; i++)
+		{
+			//Random number to generate face
+			const scalar f = rnd.sample01<scalar>() * patchArea_Proc;
+			
+			//Find containing triangle
+			label trii = 0;
+			for (label j = 1; j < triMagSf.size(); j++)
+			{
+				if( triMagSf[j] >= f )
+				{
+					trii = j-1;
+					break;
+				}	
+			}
+			
+			//Info<< "Site face number: " << triToFace[trii] << endl;
+			
+			//Now get a random point on that tri/face
+			const face& tf = triFace[trii];
+            const triPointRef tri(points[tf[0]], points[tf[1]], points[tf[2]]);
+			point p = tri.randomPoint(rnd);
+			// Apply corrections to position for 2-D cases
+            meshTools::constrainToMeshCentre(this->mesh(), p);
+            NucleationSite_Positions[i] = p;
+			//Info<< "Nucleation site: " << NucleationSite_Positions[i] << endl;
+			
+			//Indicate normal direction (into domain)
+			NucleationSite_Normals[i] = -patchNormals[triToFace[trii]];
+			//Info<< "Nucleation site normal: " << NucleationSite_Normals[i] << endl;
+			
+			//Set nucleation site size
+			NucleationSite_Radii[i] = SizeDistribution->sample();
+			//Info<< "Nucleation site size: " << NucleationSite_Radii[i] << endl;
+		
+		
+		}		
+		
+		
+		
+		
+		
+		
+	}
+		
+	
+}
+
 
 
 // ************************************************************************* //

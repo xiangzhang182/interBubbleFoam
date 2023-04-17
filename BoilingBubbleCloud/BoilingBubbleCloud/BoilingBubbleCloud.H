@@ -83,23 +83,6 @@ public:
         //- Convenience typedef for this cloud type
         typedef BoilingBubbleCloud<CloudType> BoilingBubbleCloudType;
 
-        //Public subclass for nucleation site information
-        class NucleationSite
-        {
-            protected:
-                vector Position_;
-                scalar Radius_;
-                //Information about whether a bubble is present, waiting time / when to produce new bubble...
-                //Index for a parent cell
-
-            //- Construct from components
-            NucleationSite
-            (
-                vector Position,
-                scalar Radius
-            );
-        };
-
 private:
 
     // Private data
@@ -153,8 +136,18 @@ protected:
             //- Volume source in continuous liquid from bubbles evaporating or condensing [m^3]
             autoPtr<volScalarField::Internal> VLTrans_;
 
-        //List of nucleation sites
-        IOList<NucleationSite> NucleationSites;
+        //Nucleation site and boiling properties - should move to a separate class with its own I/O properties later...
+		const dictionary NucleateBoilingProperties;
+		label NucleateBoilingPatchID = -1;
+		label NucleationSiteCount_Global = 0;
+		label NucleationSiteCount_Proc = 0;
+		vectorList NucleationSite_Positions;
+		scalarList NucleationSite_Radii;
+		vectorList NucleationSite_Normals;
+		labelList NucleationSite_BubbleIDs;
+		
+		//Protected nucleation methods
+		void InitNucleateBoiling();
 
 public:
 
