@@ -74,36 +74,7 @@ subModels
 
     injectionModels    
     {
-        model1
-        {
-            type            patchInjection;
-            SOI             0.001;
-            massTotal       20;
-            parcelBasisType fixed;
-            nParticle       1;
-            patch           Base;
-            duration        1;
-            parcelsPerSecond 5E4;               
-            U0              (0 0.01 0);
-            flowRateProfile constant 1;
-            sizeDistribution
-            {
-               /* type        uniform;
-                uniformDistribution
-                {
-                     minValue       0.0001;
-                     maxValue       0.0002;
-                } */ 
-
-               
-                type        fixedValue;
-                fixedValueDistribution
-                {
-                     value       0.003;       // Cell size 16*16 mm
-                }
-                
-            }
-        }
+        
     }
 
     collisionModel none; 

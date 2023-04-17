@@ -142,12 +142,14 @@ protected:
 		label NucleationSiteCount_Global = 0;
 		label NucleationSiteCount_Proc = 0;
 		vectorList NucleationSite_Positions;
+		labelList NucleationSite_CellOwners;
 		scalarList NucleationSite_Radii;
 		vectorList NucleationSite_Normals;
 		labelList NucleationSite_BubbleIDs;
 		
 		//Protected nucleation methods
-		void InitNucleateBoiling();
+		void InitNucleateBoiling(); //Initialization function, called from regular constructor
+		void PopulateNucleationSites(); //Adds nucleating bubbles to any unoccupied sites
 
 public:
 

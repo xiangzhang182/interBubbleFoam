@@ -392,6 +392,10 @@ void Foam::BoilingBubbleCloud<CloudType>::preEvolve
 )
 {
     CloudType::preEvolve(td);
+	
+	//Adds nucleating bubbles to any unoccupied sites
+	if ( NucleateBoilingProperties.lookupOrDefault("active", false) )
+	{	PopulateNucleationSites(); }
 }
 
 
@@ -586,6 +590,7 @@ void Foam::BoilingBubbleCloud<CloudType>::InitNucleateBoiling()
 		NucleationSite_Radii.resize(NucleationSiteCount_Proc, Zero);
 		NucleationSite_Normals.resize(NucleationSiteCount_Proc, Zero);
 		NucleationSite_BubbleIDs.resize(NucleationSiteCount_Proc, -1);
+		NucleationSite_CellOwners.resize(NucleationSiteCount_Proc,-1);
 		
 		//Now, create nucleation sites, 1 by 1
 		Random rnd;
@@ -629,9 +634,14 @@ void Foam::BoilingBubbleCloud<CloudType>::InitNucleateBoiling()
 			NucleationSite_Normals[i] = -patchNormals[triToFace[trii]];
 			//Info<< "Nucleation site normal: " << NucleationSite_Normals[i] << endl;
 			
+			//Set cells that own the site
+			NucleationSite_CellOwners[i] = cellOwners[triToFace[trii]];
+			
 			//Set nucleation site size
 			NucleationSite_Radii[i] = SizeDistribution->sample();
 			//Info<< "Nucleation site size: " << NucleationSite_Radii[i] << endl;
+		
+			
 		
 		
 		}		
@@ -647,5 +657,46 @@ void Foam::BoilingBubbleCloud<CloudType>::InitNucleateBoiling()
 }
 
 
+//Create nucleating bubbles for any unoccupied sites
+template<class CloudType>
+void Foam::BoilingBubbleCloud<CloudType>::PopulateNucleationSites()
+{
+	
+	for (label i = 0; i < NucleationSiteCount_Proc; i++) //Iterate over all sites on processor
+	{
+		if ( NucleationSite_BubbleIDs[i] != -1)
+		{ continue; } //Site already has a nucleating bubble in it
+
+		//Properties for the new bubble
+		label celli = NucleationSite_CellOwners[i];
+		vector pos = NucleationSite_Positions[i] + NucleationSite_Radii[i]*NucleationSite_Normals[i];
+		
+		// Apply corrections to position for 2-D cases
+        meshTools::constrainToMeshCentre(this->mesh(), pos);
+		
+		// Create a new parcel
+        parcelType* pPtr = new parcelType(this->mesh(), pos, celli);
+
+        // Check/set new parcel properties
+        this->setParcelThermoProperties(*pPtr, 0.0);
+		pPtr->U() = vector(Zero);
+        pPtr->d() = 2.0*NucleationSite_Radii[i];
+		pPtr->nParticle() = 1;
+
+        // Check/set new parcel injection properties
+        this->checkParcelProperties(*pPtr, 0, false);
+
+		//Not sure which of the following are needed:
+		//parcelsAdded++;
+        //massAdded += pPtr->nParticle()*pPtr->mass();
+		//pPtr->move(cloud, td, dt)
+        //pPtr->typeId() = injectorID_;
+        
+		this->addParticle(pPtr);
+		NucleationSite_BubbleIDs[i] = pPtr->origId();
+		Info<<"Added bubble ID: " << pPtr->origId() << endl;
+
+	}
+}
 
 // ************************************************************************* //
