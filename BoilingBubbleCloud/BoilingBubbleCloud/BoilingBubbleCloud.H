@@ -109,6 +109,9 @@ protected:
         //Reference to mixture and interface classes for VOF model
         const twoPhaseMixtureEThermo& thermo_;
         const interfaceProperties& interface_;
+		//- Surface tension model - we seem to need a separate one because it is not available from interfaceProperties, etc.
+		const dictionary& transportProperties_; // First need access to transport properties
+        autoPtr<surfaceTensionModel> sigmaPtr_;
 
 	    //References to the carrier/continuous phase field
 	    const volScalarField& alpha_L_;
@@ -119,6 +122,8 @@ protected:
 
 	    //-Interface normal field
 	    volVectorField n_hat_;
+
+		
 
         // Initialisation
 
@@ -216,10 +221,11 @@ public:
             //- Return const access to the mixture field
             inline const twoPhaseMixtureEThermo& thermo() const;
             inline const interfaceProperties& interface() const;
-                        
+            
 
             //- Return const access to the carrier volume fraction field
-            inline const volScalarField& alpha_L() const;
+            inline tmp<volScalarField> sigma() const;
+			inline const volScalarField& alpha_L() const;
             inline const volScalarField& T() const;
 
             //- Return const access to the interface normal field fraction field

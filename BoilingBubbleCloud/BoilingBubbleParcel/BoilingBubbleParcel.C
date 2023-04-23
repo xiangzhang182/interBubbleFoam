@@ -237,6 +237,10 @@ Foam::scalar Foam::BoilingBubbleParcel<ParcelType>::calcHeatTransfer
     const scalar m = rho_V*V;
     const scalar h_LV = cloud.thermo().Hf2().value() - cloud.thermo().Hf1().value();    // Latent heat of vaparization 
 
+	const tetIndices tetIs = this->currentTetIndices();
+    const scalar sigma = td.sigmaInterp().interpolate(this->coordinates(), tetIs);
+Info<<"Bubble sigma = " << sigma << endl;
+
     // Calc heat transfer coefficient
     // Hard code in Ranz Marshall formula
 //Info<<"Re = " << Re << endl;

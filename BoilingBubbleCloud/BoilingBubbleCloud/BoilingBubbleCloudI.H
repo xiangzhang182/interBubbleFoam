@@ -35,6 +35,12 @@ Foam::BoilingBubbleCloud<CloudType>::cloudCopy() const
 }
 
 template<class CloudType>
+inline tmp<Foam::volScalarField> Foam::BoilingBubbleCloud<CloudType>::sigma() const
+{
+	return sigmaPtr_->sigma();
+}
+
+template<class CloudType>
 inline const Foam::volScalarField& Foam::BoilingBubbleCloud<CloudType>::alpha_L() const
 {
     return alpha_L_;

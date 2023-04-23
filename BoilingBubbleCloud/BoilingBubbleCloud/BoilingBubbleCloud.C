@@ -59,6 +59,8 @@ Foam::BoilingBubbleCloud<CloudType>::BoilingBubbleCloud
     thermo_(thermo),
     cloudCopyPtr_(nullptr),
     interface_(interface),
+	transportProperties_( rho.db().objectRegistry::lookupObject<IOdictionary>("transportProperties") ),
+	sigmaPtr_(surfaceTensionModel::New( transportProperties_, rho.mesh())),
     alpha_L_(thermo.alpha1()),    
     T_(thermo.T()),
     VolPopped_
@@ -178,6 +180,8 @@ Foam::BoilingBubbleCloud<CloudType>::BoilingBubbleCloud
     thermo_(c.thermo()),
     cloudCopyPtr_(nullptr),
     interface_(c.interface()),
+	transportProperties_( c.alpha_L().db().objectRegistry::lookupObject<IOdictionary>("transportProperties") ),
+	sigmaPtr_(surfaceTensionModel::New( transportProperties_, c.alpha_L().mesh())),
     alpha_L_(c.alpha_L()),
     T_(c.T()),
     VolPopped_
@@ -279,6 +283,8 @@ Foam::BoilingBubbleCloud<CloudType>::BoilingBubbleCloud
     thermo_(c.thermo()),
     cloudCopyPtr_(nullptr),
     interface_(c.interface()),
+	transportProperties_( mesh.thisDb().objectRegistry::lookupObject<IOdictionary>("transportProperties") ),
+	sigmaPtr_(surfaceTensionModel::New( transportProperties_, mesh) ),
     alpha_L_(c.alpha_L()),
     T_(c.T()),
     VolPopped_

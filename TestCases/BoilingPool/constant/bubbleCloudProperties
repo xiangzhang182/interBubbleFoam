@@ -43,6 +43,7 @@ solution
         n_hat           cellPoint;
         cp              cellPoint;
         kappa           cellPoint;
+		sigma           cellPoint;
     }
 
     integrationSchemes

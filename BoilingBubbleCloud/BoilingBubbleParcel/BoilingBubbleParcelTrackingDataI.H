@@ -37,6 +37,7 @@ inline Foam::BoilingBubbleParcel<ParcelType>::trackingData::trackingData
     
     Cp_(cloud.thermo().Cp()),   //ASR - note: original version copied from ThermoParcel has Cloud.thermo().thermo.Cp()
     kappa_(cloud.thermo().kappa()),
+	sigma_(cloud.sigma() ),
       
     TInterp_
     (
@@ -62,6 +63,14 @@ inline Foam::BoilingBubbleParcel<ParcelType>::trackingData::trackingData
             kappa_
         )
     ),
+	sigmaInterp_
+    (
+        interpolation<scalar>::New
+        (
+            cloud.solution().interpolationSchemes(),
+            sigma_
+        )
+    ),
     Tc_(Zero),
     Cpc_(Zero)
 {
@@ -82,6 +91,13 @@ inline const Foam::volScalarField&
 Foam::BoilingBubbleParcel<ParcelType>::trackingData::kappa() const   
 {
     return kappa_;
+}
+
+template<class ParcelType>
+inline const Foam::volScalarField&
+Foam::BoilingBubbleParcel<ParcelType>::trackingData::sigma() const   
+{
+    return sigma_;
 }
 
 
@@ -107,6 +123,12 @@ Foam::BoilingBubbleParcel<ParcelType>::trackingData::kappaInterp() const
     return *kappaInterp_;
 }
 
+template<class ParcelType>
+inline const Foam::interpolation<Foam::scalar>&
+Foam::BoilingBubbleParcel<ParcelType>::trackingData::sigmaInterp() const
+{
+    return *sigmaInterp_;
+}
 
 template<class ParcelType>
 inline Foam::scalar Foam::BoilingBubbleParcel<ParcelType>::trackingData::Tc() const

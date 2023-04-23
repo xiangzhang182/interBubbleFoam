@@ -103,6 +103,8 @@ public:
             //  kappa not stored on carrier thermo, but returned as tmp<...>
             const volScalarField kappa_;
 
+			//- Same story for sigma (surface tension
+			const volScalarField sigma_;
 
             // Interpolators for continuous phase fields
 
@@ -114,6 +116,8 @@ public:
 
                 //- Thermal conductivity field interpolator
                 autoPtr<interpolation<scalar>> kappaInterp_;
+				
+				autoPtr<interpolation<scalar>> sigmaInterp_;
                 
 
             // Cached continuous phase properties
@@ -148,6 +152,7 @@ public:
 
             //- Return access to the locally stored carrier kappa field
             inline const volScalarField& kappa() const;
+			inline const volScalarField& sigma() const;
 
                 
             //- Return const access to the interpolators
@@ -160,6 +165,8 @@ public:
             //- Return const access to the interpolator for continuous
             //  phase thermal conductivity field
             inline const interpolation<scalar>& kappaInterp() const;
+            inline const interpolation<scalar>& sigmaInterp() const;
+
 
             //- Return the continuous phase props
             inline scalar Tc() const;
