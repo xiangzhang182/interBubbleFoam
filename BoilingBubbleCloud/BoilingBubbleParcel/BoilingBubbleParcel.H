@@ -182,12 +182,20 @@ public:
             
     };
 
+	//Data for the nucleation site sourcing this bubble
+	//Keep as public for now to reduce the number of access functions needed
+	vector NucleationSite_Position;
+	vector NucleationSite_Normal;
+	scalar NucleationSite_Radius;
+	bool   IsPinned;
+
 
 protected:
 
     // Protected data
-    //ASR - no additional state data for now     
-    
+	
+	
+	
     
     //- Calculate new particle diameter (vs. new particle Temperature from regular ThermoParcel)
     template<class TrackCloudType>

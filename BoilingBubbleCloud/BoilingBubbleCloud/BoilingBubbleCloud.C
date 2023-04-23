@@ -698,6 +698,12 @@ void Foam::BoilingBubbleCloud<CloudType>::PopulateNucleationSites()
 		//pPtr->move(cloud, td, dt)
         //pPtr->typeId() = injectorID_;
         
+		//Info about the nucleation site for this bubble
+		pPtr->NucleationSite_Position =  NucleationSite_Positions[i];
+		pPtr->NucleationSite_Normal = NucleationSite_Normals[i];
+		pPtr->NucleationSite_Radius = NucleationSite_Radii[i];
+		pPtr->IsPinned = true;
+		
 		this->addParticle(pPtr);
 		NucleationSite_BubbleIDs[i] = pPtr->origId();
 		Info<<"Added bubble ID: " << pPtr->origId() << endl;

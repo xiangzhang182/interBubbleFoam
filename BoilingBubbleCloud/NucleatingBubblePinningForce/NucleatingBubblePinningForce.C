@@ -70,32 +70,33 @@ Foam::forceSuSp Foam::NucleatingBubblePinningForce<CloudType>::calcCoupled
 {
     forceSuSp F(Zero); //I think this initializes both Su and Sp to 0
 
+	//Note - overall algorithm needs to be adjusted somewhat so that the bubble isn't bouncing all over the place
+
     //Change F if the bubble is still pinned
-    if ( p.Pinned()  )
+    if ( p.IsPinned  )
     {
         //Maximum retaining force:
-        const scalar sigma = owner().interface().
-        const scalar F_max = sigma*p.D()*constant::mathematical::pi; //Replace with more accurate calculation depending on things like contact angles, etc.
-        const vector x_eq = p.x_NucleationSite() + p.nhat_NucleationSite()*( p.d()/2.0 );
+		const tetIndices tetIs = p.currentTetIndices();
+		const scalar sigma = td.sigmaInterp().interpolate(p.coordinates(), tetIs);
+		
+		const scalar mag_F_max = sigma*p.d()*constant::mathematical::pi; //Replace with more accurate calculation depending on things like contact angles, etc.
+        const vector x_eq = p.NucleationSite_Position + p.NucleationSite_Normal*( p.d()/2.0 );
 
-        const scalar k_spring = F_max / ( 0.2*p.d() );
+        const scalar k_spring = mag_F_max / ( 0.2*p.d() );
         vector F_pinning = k_spring*( x_eq - p.position() );
-
-        if ( mag(F_pinning) < F_max) //Bubble still pinned
-        {
-            F.Su() = F_pinning;
-        }
-        else
-        {
-            p.UnPin();
-        }
-
-
+		//Limit the pinning force
+		const scalar mag_F_pinning_0 = mag(F_pinning);
+		if (mag_F_pinning_0 > mag_F_max)
+		{
+			F_pinning *= (mag_F_max/mag_F_pinning_0);
+		}
+		
+		F.Su() = F_pinning;
+        
+		//Note - breaking of pinning is handled at the cloud level, not as part of this force
+		//to reduce the need for coupled calculations with the nucleation sites	
     }
     
-    
-    
-    // (AOB:Eq. 34)
     return F;
 }
 

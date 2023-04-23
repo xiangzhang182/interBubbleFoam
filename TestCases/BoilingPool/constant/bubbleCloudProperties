@@ -71,6 +71,7 @@ subModels
         sphereDrag;
         gravity;
         InterfacePinning;
+		NucleatingBubblePinning;
     }
 
     injectionModels    

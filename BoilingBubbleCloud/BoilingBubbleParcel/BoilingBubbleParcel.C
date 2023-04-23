@@ -239,7 +239,7 @@ Foam::scalar Foam::BoilingBubbleParcel<ParcelType>::calcHeatTransfer
 
 	const tetIndices tetIs = this->currentTetIndices();
     const scalar sigma = td.sigmaInterp().interpolate(this->coordinates(), tetIs);
-Info<<"Bubble sigma = " << sigma << endl;
+//Info<<"Bubble sigma = " << sigma << endl;
 
     // Calc heat transfer coefficient
     // Hard code in Ranz Marshall formula

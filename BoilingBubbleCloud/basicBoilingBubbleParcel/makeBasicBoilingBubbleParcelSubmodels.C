@@ -45,6 +45,7 @@ License
 
 
 #include "InterfacePinningForce.H"
+#include "NucleatingBubblePinningForce.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -55,6 +56,9 @@ License
 
     //Additional special force for bubble pinning at the interface
     makeParticleForceModelType(InterfacePinningForce, basicBoilingBubbleCloud);
+	
+	//Special force to pin bubble to nucleation sites as it is growing
+	makeParticleForceModelType(NucleatingBubblePinningForce, basicBoilingBubbleCloud);
 
 	makeParcelDispersionModels(basicBoilingBubbleCloud);
 	makeParcelInjectionModels(basicBoilingBubbleCloud);

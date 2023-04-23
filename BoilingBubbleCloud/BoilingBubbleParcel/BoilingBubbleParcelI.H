@@ -37,7 +37,11 @@ inline Foam::BoilingBubbleParcel<ParcelType>::BoilingBubbleParcel
     const label tetPti
 )
 :
-    ParcelType(owner, coordinates, celli, tetFacei, tetPti)
+    ParcelType(owner, coordinates, celli, tetFacei, tetPti),
+	NucleationSite_Position(Zero),
+	NucleationSite_Normal(Zero),
+	NucleationSite_Radius(0),
+	IsPinned(false)
     
     //  T_(0.0),
     //  Cp_(0.0)    
@@ -53,7 +57,11 @@ inline Foam::BoilingBubbleParcel<ParcelType>::BoilingBubbleParcel
     const label celli
 )
 :
-    ParcelType(owner, position, celli)
+    ParcelType(owner, position, celli),
+	NucleationSite_Position(Zero),
+	NucleationSite_Normal(Zero),
+	NucleationSite_Radius(0),
+	IsPinned(false)
 {}
 
 
@@ -94,7 +102,11 @@ inline Foam::BoilingBubbleParcel<ParcelType>::BoilingBubbleParcel
         torque0,
         intTime0,     
         constProps
-    )
+    ),
+	NucleationSite_Position(Zero),
+	NucleationSite_Normal(Zero),
+	NucleationSite_Radius(0),
+	IsPinned(false)
 {}
 
 
