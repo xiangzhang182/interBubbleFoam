@@ -5,6 +5,6 @@ cd ${0%/*} || exit 1                        # Run from this directory
 cleanCase
 \cp 0/alpha.liquid.0 0/alpha.liquid
 rm Logging.dat
-touch BubbleShrink.foam
+touch BoilingPool.foam
 
 #------------------------------------------------------------------------------

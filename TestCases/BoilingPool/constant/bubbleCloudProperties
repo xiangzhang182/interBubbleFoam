@@ -21,7 +21,7 @@ solution
     coupled         true;                   
     transient       yes;
     cellValueSourceCorrection on;
-    maxCo           0.3;
+    maxCo           0.1;
 
     sourceTerms                           // Need to add volume source term 
     {
@@ -127,7 +127,7 @@ NucleateBoiling
 		type        fixedValue;
 		fixedValueDistribution
 		{
-			 value       1E-5;
+			 value       2E-6;
 		}
 		
 	}

@@ -236,9 +236,19 @@ Foam::scalar Foam::BoilingBubbleParcel<ParcelType>::calcHeatTransfer
     const scalar V = this->volume(d);
     const scalar m = rho_V*V;
     const scalar h_LV = cloud.thermo().Hf2().value() - cloud.thermo().Hf1().value();    // Latent heat of vaparization 
+	const scalar T_sat_0 = cloud.thermo().TSat().value();
+
 
 	const tetIndices tetIs = this->currentTetIndices();
     const scalar sigma = td.sigmaInterp().interpolate(this->coordinates(), tetIs);
+	
+	//Calculate capillary pressure and temperature jump
+	const scalar DeltaP_cap = 2.0*sigma/(d/2.0);
+	const scalar DeltaT_sat_cap = 2.0*T_sat_0*sigma/(rho_V*h_LV* (d/2.0) );
+	const scalar T_sat_eff = T_sat_0 + DeltaT_sat_cap;
+
+//Info<<"T_sat_eff = " << T_sat_eff << endl;
+	
 //Info<<"Bubble sigma = " << sigma << endl;
 
     // Calc heat transfer coefficient
@@ -247,13 +257,26 @@ Foam::scalar Foam::BoilingBubbleParcel<ParcelType>::calcHeatTransfer
 //Info<<"Pr = " << Pr << endl;
     const scalar htc = (kappa/d)*(2.0 + 0.6 * pow(Re,0.5) * pow(Pr,0.33) );
 //Info<<"HTC = " << htc << endl;
-    // Assume explicit particle heat transfer for calculating new size
-    // Q is positive for evaporation
-    scalar Q = dt*As*htc*(td.Tc() - cloud.thermo().TSat().value() );
-//Info<<"Q = " << Q << endl;
-    //Limit so that bubble isn't over-condensed to negative mass
-    Q = max(Q, -m*h_LV);
     
+	// Assume explicit particle heat transfer for calculating new size
+    // Q is positive for evaporation
+    scalar Q = dt*As*htc*(td.Tc() - T_sat_eff );
+//Info<<"Q = " << Q << endl;
+    
+	//Limiting for bubble condensation:
+	
+	//If the bubble is currently pinned to a nucleation site, don't let it condense below minimum nucleus size
+	if ( this->IsPinned )
+	{
+		const scalar m_min = (4.0/3.0)*constant::mathematical::pi*pow(this->NucleationSite_Radius,3)*rho_V;
+		Q = max(Q, (-m + m_min)*h_LV);
+	}
+	else //Otherwise, just make sure not to condense below zero mass
+	{
+		//Limit so that bubble isn't over-condensed to negative mass
+		Q = max(Q, -m*h_LV);
+	}
+	
     const scalar dM = Q/h_LV;
     
     //Negative for condensation 

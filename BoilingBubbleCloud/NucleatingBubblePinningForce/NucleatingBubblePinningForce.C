@@ -95,6 +95,10 @@ Foam::forceSuSp Foam::NucleatingBubblePinningForce<CloudType>::calcCoupled
         
 		//Note - breaking of pinning is handled at the cloud level, not as part of this force
 		//to reduce the need for coupled calculations with the nucleation sites	
+		
+		//Try adding damping (critical damping) to control bubble motion:
+		const scalar c_damp = sqrt(4 * mass * k_spring);
+		F.Sp() = c_damp;
     }
     
     return F;
