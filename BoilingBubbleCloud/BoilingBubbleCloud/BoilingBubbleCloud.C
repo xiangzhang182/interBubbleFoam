@@ -399,9 +399,12 @@ void Foam::BoilingBubbleCloud<CloudType>::preEvolve
 {
     CloudType::preEvolve(td);
 	
-	//Adds nucleating bubbles to any unoccupied sites
+	//Adds nucleating bubbles to any unoccupied sites, also detects departures
 	if ( NucleateBoilingProperties.lookupOrDefault("active", false) )
-	{	PopulateNucleationSites(); }
+	{
+		DetectNucleatingBubbleDeparture();
+		PopulateNucleationSites();
+	}
 }
 
 
@@ -595,7 +598,7 @@ void Foam::BoilingBubbleCloud<CloudType>::InitNucleateBoiling()
 		NucleationSite_Positions.resize(NucleationSiteCount_Proc, Zero);
 		NucleationSite_Radii.resize(NucleationSiteCount_Proc, Zero);
 		NucleationSite_Normals.resize(NucleationSiteCount_Proc, Zero);
-		NucleationSite_BubbleIDs.resize(NucleationSiteCount_Proc, -1);
+		NucleationSite_BubblePtrs.resize(NucleationSiteCount_Proc);
 		NucleationSite_CellOwners.resize(NucleationSiteCount_Proc,-1);
 		
 		//Now, create nucleation sites, 1 by 1
@@ -646,21 +649,62 @@ void Foam::BoilingBubbleCloud<CloudType>::InitNucleateBoiling()
 			//Set nucleation site size
 			NucleationSite_Radii[i] = SizeDistribution->sample();
 			//Info<< "Nucleation site size: " << NucleationSite_Radii[i] << endl;
-		
-			
-		
-		
+
 		}		
+	}		
+}
+
+//Detects whether any nucleating bubbles have moved far enough away from (pinning) nucleation site to depart
+//Update parcels and nucleation sites accordingly
+template<class CloudType>
+void Foam::BoilingBubbleCloud<CloudType>::DetectNucleatingBubbleDeparture()
+{
+	//Iterate over all sites on processor
+	for (label i = 0; i < NucleationSiteCount_Proc; i++)
+	{
+		if ( !NucleationSite_BubblePtrs.test(i) )
+		{ continue; } //Site does not have a nucleating particle, so nothing to do here
+	
+		//Get location of nucleation site and location of particle
+		const vector x_ns = NucleationSite_Positions[i];
+		const vector n_ns = NucleationSite_Normals[i];
 		
+		//Get particle
+		//Rattner - I'm not sure if this access approach is correct, does it break if there are multiple processors or bubbles are deleted?
+		parcelType& p = NucleationSite_BubblePtrs[i];
 		
+		//Relative position of bubble
+		const vector xr_p = p.position() - x_ns;
+		//Info<< "Particle "<< p.origId() << ", position " << x_p << endl;
 		
+		//Get equilibrium parcel location (relative to nucleation site)
+		const scalar l_eq = p.d()/2.0; // equilibrium length of bubble center along normal from nucleation site
 		
+		//Project bubble location onto line from ns to eq, see max distance from a point on that line segment
+		//Find the relative location of where the bubble projection lands - limited to two end points
+		const scalar l_rel_proj = max( min( (xr_p & n_ns) , l_eq), 0.0);
+		//Measurement origin from the line segment (xr_ref)
+		const vector xr_ref = l_rel_proj*n_ns;
 		
+		//Distance from line segment, normalized by diameter
+		const scalar dist_rel = mag(xr_p - xr_ref)/p.d();
+		
+		//Info<< "Particle "<< p.origId() << ", relative distance from equilibrium " << dist_rel << endl;
+		
+		//Detach bubbles that get far enough away from the equilibrium line
+		if (dist_rel > 0.5)
+		{
+			p.IsPinned = false;
+			NucleationSite_BubblePtrs.set(i, NULL);
+		}
+
 		
 	}
-		
+	
 	
 }
+
+
 
 
 //Create nucleating bubbles for any unoccupied sites
@@ -670,7 +714,7 @@ void Foam::BoilingBubbleCloud<CloudType>::PopulateNucleationSites()
 	
 	for (label i = 0; i < NucleationSiteCount_Proc; i++) //Iterate over all sites on processor
 	{
-		if ( NucleationSite_BubbleIDs[i] != -1)
+		if ( NucleationSite_BubblePtrs.test(i) )
 		{ continue; } //Site already has a nucleating bubble in it
 
 		//Properties for the new bubble
@@ -705,10 +749,12 @@ void Foam::BoilingBubbleCloud<CloudType>::PopulateNucleationSites()
 		pPtr->IsPinned = true;
 		
 		this->addParticle(pPtr);
-		NucleationSite_BubbleIDs[i] = pPtr->origId();
+		NucleationSite_BubblePtrs.set(i, pPtr);
 		Info<<"Added bubble ID: " << pPtr->origId() << endl;
 
 	}
 }
+
+
 
 // ************************************************************************* //

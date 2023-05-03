@@ -150,10 +150,11 @@ protected:
 		labelList NucleationSite_CellOwners;
 		scalarList NucleationSite_Radii;
 		vectorList NucleationSite_Normals;
-		labelList NucleationSite_BubbleIDs;
+		UPtrList<parcelType> NucleationSite_BubblePtrs;
 		
 		//Protected nucleation methods
 		void InitNucleateBoiling(); //Initialization function, called from regular constructor
+		void DetectNucleatingBubbleDeparture(); //Detects whether any nucleating bubbles have moved far enough away from (pinning) nucleation site to depart
 		void PopulateNucleationSites(); //Adds nucleating bubbles to any unoccupied sites
 
 public:
