@@ -62,8 +62,6 @@ Foam::BoilingBubbleParcel<ParcelType>::BoilingBubbleParcel
 )
 :
     ParcelType(p)
-    // T_(p.T_),
-    // Cp_(p.Cp_)
     
 {}
 
@@ -230,12 +228,12 @@ Foam::scalar Foam::BoilingBubbleParcel<ParcelType>::calcHeatTransfer
     //}
 
     const scalar d = this->d();
-    const scalar rho_V = this->rho();                      //  cloud.thermo().rho2().value() ? 
+    const scalar rho_V = this->rho();                      
     const scalar rho_L = cloud.thermo().rho1().value();
     const scalar As = this->areaS(d);
     const scalar V = this->volume(d);
     const scalar m = rho_V*V;
-    const scalar h_LV = cloud.thermo().Hf2().value() - cloud.thermo().Hf1().value();    // Latent heat of vaparization 
+    const scalar h_LV = cloud.thermo().Hf2().value() - cloud.thermo().Hf1().value();   
 	const scalar T_sat_0 = cloud.thermo().TSat().value();
 
 
@@ -244,7 +242,7 @@ Foam::scalar Foam::BoilingBubbleParcel<ParcelType>::calcHeatTransfer
 	
 	//Calculate capillary pressure and temperature jump
 	const scalar DeltaP_cap = 2.0*sigma/(d/2.0);
-	const scalar DeltaT_sat_cap = 2.0*T_sat_0*sigma/(rho_V*h_LV* (d/2.0) );
+	const scalar DeltaT_sat_cap = 2.0*T_sat_0*sigma/(rho_V*h_LV* (d/2.0) );     // Clausius-Clapeyron relation
 	const scalar T_sat_eff = T_sat_0 + DeltaT_sat_cap;
 
 //Info<<"T_sat_eff = " << T_sat_eff << endl;

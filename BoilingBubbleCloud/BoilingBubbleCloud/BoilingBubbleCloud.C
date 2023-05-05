@@ -60,7 +60,7 @@ Foam::BoilingBubbleCloud<CloudType>::BoilingBubbleCloud
     cloudCopyPtr_(nullptr),
     interface_(interface),
 	transportProperties_( rho.db().objectRegistry::lookupObject<IOdictionary>("transportProperties") ),
-	sigmaPtr_(surfaceTensionModel::New( transportProperties_, rho.mesh())),
+	sigmaPtr_(surfaceTensionModel::New( transportProperties_, rho.mesh())),     // Surface tension
     alpha_L_(thermo.alpha1()),    
     T_(thermo.T()),
     VolPopped_
@@ -399,7 +399,7 @@ void Foam::BoilingBubbleCloud<CloudType>::preEvolve
 {
     CloudType::preEvolve(td);
 	
-	//Adds nucleating bubbles to any unoccupied sites, also detects departures
+	//Adds nucleating bubbles to any unoccupied sites, also detects departures    // Why need this?  
 	if ( NucleateBoilingProperties.lookupOrDefault("active", false) )
 	{
 		DetectNucleatingBubbleDeparture();
@@ -663,7 +663,7 @@ void Foam::BoilingBubbleCloud<CloudType>::DetectNucleatingBubbleDeparture()
 	for (label i = 0; i < NucleationSiteCount_Proc; i++)
 	{
 		if ( !NucleationSite_BubblePtrs.test(i) )
-		{ continue; } //Site does not have a nucleating particle, so nothing to do here
+		{ continue; }   //Site does not have a nucleating particle, so nothing to do here
 	
 		//Get location of nucleation site and location of particle
 		const vector x_ns = NucleationSite_Positions[i];

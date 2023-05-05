@@ -116,17 +116,28 @@ void Foam::BoilingBubbleParcel<ParcelType>::writeFields(const CloudType& c)
     const label np = c.size();
     const bool valid = np;
 
-//    IOField<scalar>
-//    intTime(c.fieldIOobject("intTime", IOobject::NO_READ), np);
+    IOField<vector> NucleationSite_Position_IO(c.fieldIOobject("NucleationSite_Position", IOobject::NO_READ), np);
+    IOField<vector> NucleationSite_Normal_IO(c.fieldIOobject("NucleationSite_Normal", IOobject::NO_READ), np);
+    IOField<scalar> NucleationSite_Radius_IO(c.fieldIOobject("NucleationSite_Radius", IOobject::NO_READ), np);
+    IOField<bool> IsPinned_IO(c.fieldIOobject("IsPinned", IOobject::NO_READ), np);
 
     label i = 0;
 
     for (const BoilingBubbleParcel<ParcelType>& p : c)
     {
+        NucleationSite_Position_IO[i] = p.NucleationSite_Position;
+        NucleationSite_Normal_IO[i] = p.NucleationSite_Normal;
+        NucleationSite_Radius_IO[i] = p.NucleationSite_Radius;
+        IsPinned_IO[i] = p.IsPinned;    
 //        intTime[i] = p.intTime_;
 
         ++i;
     }
+
+    NucleationSite_Position_IO.write(valid);
+    NucleationSite_Normal_IO.write(valid);
+    NucleationSite_Radius_IO.write(valid);
+    IsPinned_IO.write(valid);
 
 //    intTime.write(valid);
 }
@@ -147,6 +158,11 @@ void Foam::BoilingBubbleParcel<ParcelType>::writeProperties
     #define writeProp(Name, Value)                                            \
         ParcelType::writeProperty(os, Name, Value, namesOnly, delim, filters)
 
+        writeProp("NucleationSite_Position", NucleationSite_Position);
+        writeProp("NucleationSite_Normal", NucleationSite_Normal);
+        writeProp("NucleationSite_Radius", NucleationSite_Radius);
+        writeProp("IsPinned", IsPinned);
+        
 //    writeProp("intTime", intTime_);
 
     #undef writeProp
@@ -164,7 +180,7 @@ void Foam::BoilingBubbleParcel<ParcelType>::readObjects
     ParcelType::readFields(c);
 
     if (!c.size()) return;
-
+    
 //    auto& intTime = cloud::lookupIOField<scalar>("intTime", obr);
 
     label i = 0;
@@ -189,11 +205,20 @@ void Foam::BoilingBubbleParcel<ParcelType>::writeObjects
 
     const label np = c.size();
 
-//    auto& intTime = cloud::createIOField<scalar>("intTime", np, obr);
+    auto& NucleationSite_Position_IO = cloud::createIOField<vector>("NucleationSite_Position", np, obr);
+    auto& NucleationSite_Normal_IO = cloud::createIOField<vector>("NucleationSite_Normal", np, obr);
+    auto& NucleationSite_Radius_IO = cloud::createIOField<scalar>("NucleationSite_Radius", np, obr);
+    auto& IsPinned_IO = cloud::createIOField<bool>("IsPinned", np, obr);
+ //    auto& intTime = cloud::createIOField<scalar>("intTime", np, obr);
 
     label i = 0;
     for (const BoilingBubbleParcel<ParcelType>& p : c)
     {
+        NucleationSite_Position_IO[i] = p.NucleationSite_Position;
+        NucleationSite_Normal_IO[i] = p.NucleationSite_Normal;
+        NucleationSite_Radius_IO[i] = p.NucleationSite_Radius;
+        IsPinned_IO[i] = p.IsPinned;    
+
 //        intTime[i] = p.intTime_;
 
         ++i;
@@ -212,17 +237,23 @@ Foam::Ostream& Foam::operator<<
 {
     if (os.format() == IOstream::ASCII)
     {
-        os  << static_cast<const ParcelType&>(p);
+        os  << static_cast<const ParcelType&>(p)
+            << token::SPACE << p.NucleationSite_Position
+            << token::SPACE << p.NucleationSite_Normal
+            << token::SPACE << p.NucleationSite_Radius
+            << token::SPACE << p.IsPinned;
+
  //           << token::SPACE << p.intTime();
     }
     else
     {
-        os  << static_cast<const ParcelType&>(p);
- //       os.write
- //       (
- //           reinterpret_cast<const char*>(&p.intTime_),
- //           BubbleParcel<ParcelType>::sizeofFields
- //       );
+        //Rattner - note this binary write mode is not updated for the boiling bubble parcel
+       os  << static_cast<const ParcelType&>(p);
+       os.write
+       (
+           reinterpret_cast<const char*>(&p.intTime_),
+           BubbleParcel<ParcelType>::sizeofFields
+       );
     }
 
     os.check(FUNCTION_NAME);

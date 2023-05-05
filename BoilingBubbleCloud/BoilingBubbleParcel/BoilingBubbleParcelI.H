@@ -42,10 +42,6 @@ inline Foam::BoilingBubbleParcel<ParcelType>::BoilingBubbleParcel
 	NucleationSite_Normal(Zero),
 	NucleationSite_Radius(0),
 	IsPinned(false)
-    
-    //  T_(0.0),
-    //  Cp_(0.0)    
-       
 {}
 
 

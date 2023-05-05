@@ -23,11 +23,11 @@ solution
     cellValueSourceCorrection on;
     maxCo           0.1;
 
-    sourceTerms                           // Need to add volume source term 
+    sourceTerms                       
     {
         schemes
         {
-            U               explicit 1;
+            U               semiImplicit 1;
             T               semiImplicit 1;
         }
     }
@@ -44,6 +44,7 @@ solution
         cp              cellPoint;
         kappa           cellPoint;
 		sigma           cellPoint;
+		DUcDt           cellPoint;
     }
 
     integrationSchemes
@@ -66,12 +67,18 @@ constantProperties
 
 subModels
 {
-    particleForces     // Do we need more here? Lift, virtual mass? 
+    particleForces     
     {
         sphereDrag;
+        virtualMass;
         gravity;
         InterfacePinning;
 		NucleatingBubblePinning;
+		
+		virtualMass
+		{
+		    Cvm 0.5;
+		}
     }
 
     injectionModels    
@@ -117,7 +124,7 @@ NucleateBoiling
 	active true;
     patch Base;
 	
-	SiteDensity 2E4; //nucleation sites per area
+	SiteDensity 1E4; //nucleation sites per area
 	
 	
 	//WaitingTime 1E-3; //Placeholder model for waiting time between bubble release and next bubble creation

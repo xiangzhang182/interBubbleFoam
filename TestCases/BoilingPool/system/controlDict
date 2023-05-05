@@ -22,13 +22,15 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         0.3;
+endTime         1.0;
 
 deltaT          1e-5;
 
-writeControl    adjustable;
+//writeControl    adjustable;
+writeControl timeStep;
 
-writeInterval   0.005;
+//writeInterval   0.01;
+writeInterval   500;
 
 purgeWrite      0;
 
@@ -50,7 +52,7 @@ maxCo           0.01;
 
 maxAlphaCo      0.01;
 
-maxDeltaT       1E-3;
+maxDeltaT       4E-4;
 
 
 //Logging step to check for conservation 

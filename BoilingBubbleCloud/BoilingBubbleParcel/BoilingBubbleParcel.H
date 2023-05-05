@@ -103,7 +103,7 @@ public:
             //  kappa not stored on carrier thermo, but returned as tmp<...>
             const volScalarField kappa_;
 
-			//- Same story for sigma (surface tension
+			//- Same story for sigma (surface tension)
 			const volScalarField sigma_;
 
             // Interpolators for continuous phase fields
