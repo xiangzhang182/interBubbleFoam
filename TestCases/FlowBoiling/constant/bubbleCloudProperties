@@ -1,0 +1,139 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1812                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      bubbleCloudProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solution
+{
+    active          true;   
+    coupled         true;                   
+    transient       yes;
+    cellValueSourceCorrection on;
+    maxCo           0.1;
+
+    sourceTerms                       
+    {
+        schemes
+        {
+            U               explicit 1;
+            T               semiImplicit 1;
+        }
+    }
+
+    interpolationSchemes                 
+        
+    {
+        rho             cellPoint;
+        U               cellPoint;
+        mu              cellPoint;
+        alpha.liquid    cellPoint;
+        T               cellPoint;            
+        n_hat           cellPoint;
+        cp              cellPoint;
+        kappa           cellPoint;
+		sigma           cellPoint;
+    }
+
+    integrationSchemes
+    {
+        U               Euler;
+    }
+}
+
+
+constantProperties
+{
+    rho0            8.0;    // HFE7000
+
+    constantVolume  false;    
+
+    //Not sure whether alphaMax is actually used anywhere
+    alphaMax        0.5;  //CHW - Added for determination of alphac in main solver
+}
+
+
+subModels
+{
+    particleForces     
+    {
+        sphereDrag;
+        gravity;
+        InterfacePinning;
+		NucleatingBubblePinning;
+    }
+
+    injectionModels    
+    {
+        
+    }
+
+    collisionModel none; 
+
+    dispersionModel none;     //stochasticDispersionRAS;
+
+    patchInteractionModel standardWallInteraction;
+   
+    compositionModel singleMixtureFraction;
+
+    phaseChangeModel none;    
+
+    devolatilisationModel none; 
+
+    surfaceReactionModel none; 
+
+    stochasticCollisionModel none; 
+
+    surfaceFilmModel none; 
+
+    radiation       off;  
+
+    standardWallInteractionCoeffs
+    {
+        type            rebound;
+    }
+
+}
+
+cloudFunctions
+{
+  
+}
+
+
+NucleateBoiling
+{
+	active true;
+    patch Base;
+	
+	SiteDensity 2E4; //nucleation sites per area
+	
+	
+	//WaitingTime 1E-3; //Placeholder model for waiting time between bubble release and next bubble creation
+	
+	RadiusDistribution
+	{
+		type        fixedValue;
+		fixedValueDistribution
+		{
+			 value       2E-6;
+		}
+		
+	}
+
+
+}
+
+
+// ************************************************************************* //
