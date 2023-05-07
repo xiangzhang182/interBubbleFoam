@@ -33,10 +33,6 @@ boundaryField
         p0              uniform 0;
     }
 
-    FrontAndBack
-    {
-        type            empty;
-    }
 
 }
 

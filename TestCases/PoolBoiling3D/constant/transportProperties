@@ -19,7 +19,7 @@ phases          (liquid vapor);
 
 continuousPhase liquid;   
 
-sigma           0.07;
+sigma           0.049;
 
 liquid
 {
