@@ -399,7 +399,7 @@ void Foam::BoilingBubbleCloud<CloudType>::preEvolve
 {
     CloudType::preEvolve(td);
 	
-	//Adds nucleating bubbles to any unoccupied sites, also detects departures    // Why need this?  
+	//Adds nucleating bubbles to any unoccupied sites, also detects departures     
 	if ( NucleateBoilingProperties.lookupOrDefault("active", false) )
 	{
 		DetectNucleatingBubbleDeparture();
@@ -672,7 +672,8 @@ void Foam::BoilingBubbleCloud<CloudType>::DetectNucleatingBubbleDeparture()
 		//Get particle
 		//Rattner - I'm not sure if this access approach is correct, does it break if there are multiple processors or bubbles are deleted?
 		parcelType& p = NucleationSite_BubblePtrs[i];
-		
+
+//Info<< p.origId() << endl;		
 		//Relative position of bubble
 		const vector xr_p = p.position() - x_ns;
 		//Info<< "Particle "<< p.origId() << ", position " << x_p << endl;

@@ -79,10 +79,15 @@ Foam::forceSuSp Foam::NucleatingBubblePinningForce<CloudType>::calcCoupled
 		const tetIndices tetIs = p.currentTetIndices();
 		const scalar sigma = td.sigmaInterp().interpolate(p.coordinates(), tetIs);
 		
-		const scalar mag_F_max = sigma*p.d()*constant::mathematical::pi; //Replace with more accurate calculation depending on things like contact angles, etc.
+		const scalar mag_F_max = 0.3 * sigma*p.d()*constant::mathematical::pi; //Replace with more accurate calculation depending on things like contact angles, etc.
         const vector x_eq = p.NucleationSite_Position + p.NucleationSite_Normal*( p.d()/2.0 );
 
-        const scalar k_spring = mag_F_max / ( 0.2*p.d() );
+        const scalar k_max = 1.0 * mass / (dt*dt);            // Coeff 1.0 
+        const scalar k_spring = min( mag_F_max / ( 1.5*p.d() ), k_max);         // Spring constant 0.8 
+        //Stabilizing limit for k_spring
+
+        
+        
         vector F_pinning = k_spring*( x_eq - p.position() );
 		//Limit the pinning force
 		const scalar mag_F_pinning_0 = mag(F_pinning);
@@ -91,6 +96,7 @@ Foam::forceSuSp Foam::NucleatingBubblePinningForce<CloudType>::calcCoupled
 			F_pinning *= (mag_F_max/mag_F_pinning_0);
 		}
 		
+//Info<< p.origId() << ", dt = " << dt << ", mass = " << mass <<", F_pinning = " << F_pinning << endl;
 		F.Su() = F_pinning;
         
 		//Note - breaking of pinning is handled at the cloud level, not as part of this force

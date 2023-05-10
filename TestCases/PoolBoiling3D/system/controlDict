@@ -26,11 +26,11 @@ endTime         1.0;
 
 deltaT          1e-5;
 
-writeControl    adjustable;
-//writeControl timeStep;
+//writeControl    adjustable;
+writeControl timeStep;
 
-writeInterval   0.01;
-//writeInterval   500;
+//writeInterval   0.01;
+writeInterval   200;
 
 purgeWrite      0;
 

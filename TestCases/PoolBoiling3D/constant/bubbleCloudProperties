@@ -70,7 +70,6 @@ subModels
     particleForces     
     {
         sphereDrag;
-        virtualMass;
         gravity;
         InterfacePinning;
 		NucleatingBubblePinning;
@@ -134,7 +133,7 @@ NucleateBoiling
 		type        fixedValue;
 		fixedValueDistribution
 		{
-			 value       2E-6;
+			 value       4E-5;
 		}
 		
 	}

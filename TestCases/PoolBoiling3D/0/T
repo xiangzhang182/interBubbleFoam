@@ -16,15 +16,20 @@ FoamFile
 
 dimensions          [0 0 0 1 0 0 0];
 
-internalField       uniform 375.15;
+internalField       uniform 373.15;
 
 boundaryField
 {
-    "(Walls|Base)"
-
+    Walls
     {
         type            zeroGradient;
         value           $internalField;
+    }
+    
+    Base
+    {
+        type fixedValue;
+        value uniform 380;
     }
 
     Top
