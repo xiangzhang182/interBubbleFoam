@@ -49,7 +49,7 @@ patches
 (
     {
         // Name of new patch
-        name Heater;
+        name Heated;
 
         // Dictionary to construct new patch from
         patchInfo

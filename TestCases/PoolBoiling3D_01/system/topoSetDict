@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2212                                 |
+|  \\    /   O peration     | Version:  v1912                                 |
 |   \\  /    A nd           | Website:  www.openfoam.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -9,13 +9,41 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       uniformDimensionedVectorField;
-    object      g;
+    class       dictionary;
+    object      topoSetDict;
 }
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 1 -2 0 0 0 0];
-value           (0 -9.81 0);
+actions
+(
 
+    {
+        name    s1;
+        type    faceSet;
+        action  new;
+        source  patchToFace;
+        sourceInfo
+	    {
+       	    patch     "Base";
+    	}
+    }
+
+    {
+        name    s1;
+        type    faceSet;
+        action  subset;
+        source  cylinderToFace;        
+        sourceInfo
+	    {
+
+//       set s1;
+       	    p1       (0 0 -1);    // start point on cylinder axis
+       	    p2       (0 0 1);     // end point on cylinder axis
+       	    radius   0.01;
+    	}
+    }
+
+);
 
 // ************************************************************************* //

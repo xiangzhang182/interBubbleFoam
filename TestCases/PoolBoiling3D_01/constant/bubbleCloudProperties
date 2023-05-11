@@ -39,7 +39,7 @@ solution
         U               cellPoint;
         mu              cellPoint;
         alpha.liquid    cellPoint;
-        T               cellPoint;        //       
+        T               cell;          //       
         n_hat           cellPoint;
         cp              cellPoint;
         kappa           cellPoint;
@@ -121,9 +121,9 @@ cloudFunctions
 NucleateBoiling
 {
 	active true;
-    patch Base;
+    patch Heated;
 	
-	SiteDensity 1E4; //nucleation sites per area
+	SiteDensity 5E5;     //nucleation sites per area
 	
 	
 	//WaitingTime 1E-3; //Placeholder model for waiting time between bubble release and next bubble creation

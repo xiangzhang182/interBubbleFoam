@@ -20,16 +20,22 @@ internalField       uniform 307.15;
 
 boundaryField
 {
-    Walls
+    Syms
     {
-        type            zeroGradient;
-        value           $internalField;
+        type symmetry;
+    }
+    
+    Heated
+    {
+        //type fixedValue;
+        //value uniform 313.15;
+        type fixedGradient;
+        gradient uniform 8E5;    //  6.0 W/cm2
     }
     
     Base
     {
-        type fixedValue;
-        value uniform 313.15;
+        type zeroGradient;
     }
 
     Top

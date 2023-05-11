@@ -32,7 +32,7 @@ divSchemes
     div(phi,omega)      Gauss upwind;
     div(phi,epsilon)    Gauss upwind;
     div(phi,k)          Gauss upwind;
-    div(rhoCpPhi,T)     Gauss upwind;  // Gauss linearUpwind grad(T);                    
+    div(rhoCpPhi,T)     Gauss upwind;     // Gauss linearUpwind grad(T);                    
     div(rhoPhi,K)       Gauss upwind;
     div(phi,alpha)      Gauss vanLeer;
     div(phirb,alpha)    Gauss linear;
@@ -54,7 +54,10 @@ interpolationSchemes
 
 snGradSchemes
 {
-    default         corrected;
+    //default         correctedA;
+    snGrad(p_rgh)  corrected;
+    snGrad(rho)  corrected;
+    snGrad(alpha.liquid)  corrected;
 }
 
 wallDist

@@ -20,10 +20,14 @@ internalField   uniform (0 0 0);
 
 boundaryField
 {
-    "(Walls|Base)"
-   
+    "(Base|Heated)"
     {
         type        noSlip;
+    }
+    
+    Syms
+    {
+        type symmetry;
     }
 
     Top

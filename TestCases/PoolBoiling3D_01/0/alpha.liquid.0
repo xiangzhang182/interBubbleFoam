@@ -16,17 +16,22 @@ FoamFile
 
 dimensions      [0 0 0 0 0 0 0];
 
-internalField   uniform 0;
+internalField   uniform 1;
 
 boundaryField
 {
     
-    "(Walls|Base)"
+    "(Base|Heated)"
     {
         type           constantAlphaContactAngle;
         theta0         5;                                   
         limit          gradient;
         value          uniform 0;
+    }
+    
+    Syms
+    {
+        type symmetry;
     }
     
 

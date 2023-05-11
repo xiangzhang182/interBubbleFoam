@@ -20,11 +20,15 @@ internalField       uniform 0;
 
 boundaryField
 {
-    "(Walls|Base)"
-    
+    "(Base|Heated)"    
     {
         type            calculated;
         value           $internalField;
+    }
+
+    Syms
+    {
+        type symmetry;
     }
 
     Top
