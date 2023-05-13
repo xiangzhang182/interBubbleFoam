@@ -9,52 +9,46 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    object      controlDict;
+    class       volScalarField;
+    object      alpha.liquid;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     interBoilingFoam;
+dimensions      [0 0 0 0 0 0 0];
 
-startFrom       startTime;
+internalField   uniform 1;
 
-startTime       0;
+boundaryField
+{
+    
+    Base
+    {
+        type           constantAlphaContactAngle;
+        theta0         5;                                   
+        limit          gradient;
+        value          uniform 0;
+    }
+    
+    Walls
+    {
+        type            zeroGradient;
+    }
+    
+    Inlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 1;
+        value           uniform 1;
+    }
 
-stopAt          endTime;
-
-endTime         1.0;
-
-deltaT          1e-5;
-
-writeControl    adjustable;
-//writeControl timeStep;
-
-writeInterval   0.001;
-//writeInterval   200;
-
-purgeWrite      0;
-
-writeFormat     ascii;
-
-writePrecision  6;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable yes;
-
-adjustTimeStep  yes;
-
-maxCo           0.01;
-
-maxAlphaCo      0.01;
-
-maxDeltaT       1E-4;
-
-
+    Outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 1;
+        value           uniform 1;
+    }
+    
+}
 
 
 // ************************************************************************* //

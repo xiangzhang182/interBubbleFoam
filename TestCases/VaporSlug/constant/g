@@ -9,52 +9,13 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    object      controlDict;
+    class       uniformDimensionedVectorField;
+    object      g;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     interBoilingFoam;
-
-startFrom       startTime;
-
-startTime       0;
-
-stopAt          endTime;
-
-endTime         1.0;
-
-deltaT          1e-5;
-
-writeControl    adjustable;
-//writeControl timeStep;
-
-writeInterval   0.001;
-//writeInterval   200;
-
-purgeWrite      0;
-
-writeFormat     ascii;
-
-writePrecision  6;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable yes;
-
-adjustTimeStep  yes;
-
-maxCo           0.01;
-
-maxAlphaCo      0.01;
-
-maxDeltaT       1E-4;
-
-
+dimensions      [0 1 -2 0 0 0 0];
+value           (0 0 -9.81);
 
 
 // ************************************************************************* //

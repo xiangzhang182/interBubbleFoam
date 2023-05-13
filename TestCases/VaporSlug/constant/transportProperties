@@ -10,51 +10,42 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    object      controlDict;
+    object      transportProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     interBoilingFoam;
 
-startFrom       startTime;
+phases          (liquid vapor);  // HFE7000
 
-startTime       0;
+continuousPhase liquid;   
 
-stopAt          endTime;
+sigma           0.0105;
 
-endTime         1.0;
+liquid
+{
+    transportModel  Newtonian;
+    nu              2.8e-7;
+    rho             1380;
 
-deltaT          1e-5;
+    Cp              1300;
+    Cv              1300;   // assume Cp for liquid
+    kappa           0.075;
+    hf              0;
+}
 
-writeControl    adjustable;
-//writeControl timeStep;
+vapor
+{
+    transportModel  Newtonian;
+    nu              5e-7;
+    rho             8.0;
 
-writeInterval   0.001;
-//writeInterval   200;
+    Cp              895.2;      // vap 
+    Cv              870.4;      // Cv = Cp - R/w
+    kappa           0.01;       // vapor
+    hf              142E3;      // HFE7000
+}
 
-purgeWrite      0;
-
-writeFormat     ascii;
-
-writePrecision  6;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable yes;
-
-adjustTimeStep  yes;
-
-maxCo           0.01;
-
-maxAlphaCo      0.01;
-
-maxDeltaT       1E-4;
-
-
+Prt             6.69;              // Turbulence Pr
 
 
 // ************************************************************************* //

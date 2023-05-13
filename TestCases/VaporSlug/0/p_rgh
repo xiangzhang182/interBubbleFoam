@@ -9,52 +9,42 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    object      controlDict;
+    class       volScalarField;
+    object      p_rgh;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     interBoilingFoam;
+dimensions          [ 1 -1 -2 0 0 0 0 ];
 
-startFrom       startTime;
+internalField       uniform 0;
 
-startTime       0;
+boundaryField
+{
+    Base
+    {
+        type            fixedFluxPressure;
+        value           $internalField;
+    }
+    
+    Walls
+    {
+        type            fixedFluxPressure;
+        value           $internalField;
+    }
+    
+    Inlet
+    {
+        type            totalPressure;
+        p0              uniform 0;
+    }
 
-stopAt          endTime;
+    Outlet
+    {
+        type            totalPressure;
+        p0              uniform 0;
+    }
 
-endTime         1.0;
-
-deltaT          1e-5;
-
-writeControl    adjustable;
-//writeControl timeStep;
-
-writeInterval   0.001;
-//writeInterval   200;
-
-purgeWrite      0;
-
-writeFormat     ascii;
-
-writePrecision  6;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable yes;
-
-adjustTimeStep  yes;
-
-maxCo           0.01;
-
-maxAlphaCo      0.01;
-
-maxDeltaT       1E-4;
-
-
+}
 
 
 // ************************************************************************* //
