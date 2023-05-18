@@ -26,19 +26,27 @@ boundaryField
         value           $internalField;
     }
 
-    Walls
+    Top
     {
-        type            zeroGradient;
+        type            calculated;
+        value           $internalField;
     }
 
     Inlet
     {
-        type            zeroGradient;
+        type            calculated;
+        value           $internalField;
     }
     
     Outlet
     {
-        type            zeroGradient;
+        type            calculated;
+        value           $internalField;
+    }
+    
+    FrontNBack
+    {
+        type empty;
     }
 
 }

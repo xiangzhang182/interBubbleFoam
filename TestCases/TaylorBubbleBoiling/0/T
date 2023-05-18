@@ -10,37 +10,52 @@ FoamFile
     version     2.0;
     format      ascii;
     class       volScalarField;
-    object      alpha.liquid;
+    object      T;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 0 0 0 0 0 0];
+dimensions          [0 0 0 1 0 0 0];
 
-internalField   uniform 0;
+internalField       uniform 307.15;
 
 boundaryField
 {
-    
-    "(Walls|Base)"
+  
+    Heater
     {
-        type           constantAlphaContactAngle;
-        theta0         30;                             
-        limit          gradient;
-        value          uniform 0;
+        //type fixedValue;
+        //value uniform 313.15;
+        type fixedGradient;
+        gradient uniform 2E5;    //  6.0 W/cm2  8E5
     }
     
+    Walls
+    {
+        //type fixedValue;
+        //value uniform 313.15;
+        type zeroGradient;
+        
+    }
+    
+    
+    Inlet
+    {
+        type            fixedValue;
+        value           uniform 307.15;
+    }
 
-    Top
+    Outlet
     {
         type            inletOutlet;
-        inletValue      uniform 0;
-        value           uniform 0;
+        inletValue      uniform 307.15;
+        value           uniform 307.15;
     }
-
-    frontAndBack
+    
+    FrontNBack
     {
-        type            empty;
-    }
+        type empty;
+    }   
+
 }
 
 

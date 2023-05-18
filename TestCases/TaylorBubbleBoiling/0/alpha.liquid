@@ -9,43 +9,46 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    object      transportProperties;
+    class       volScalarField;
+    object      alpha.liquid;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+dimensions      [0 0 0 0 0 0 0];
 
-phases          (liquid vapor);
+internalField   uniform 1;
 
-continuousPhase liquid;   
-
-sigma           0.0105; 
-
-liquid
+boundaryField
 {
-    transportModel  Newtonian;
-    nu              2.8e-7;
-    rho             1380;
+    
+    "(Walls|Heater)"
+    {
+        type           constantAlphaContactAngle;
+        theta0         5;                                   
+        limit          gradient;
+        value          uniform 0;
+    }
+    
+    Inlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 1;
+        value           uniform 1;
+    }
 
-    Cp              1300;
-    Cv              1300;   
-    kappa           0.075;
-    hf              0;
+    Outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 1;
+        value           uniform 1;
+    }
+    
+    FrontNBack
+    {
+        type empty;
+    }
+    
 }
-
-vapor
-{
-    transportModel  Newtonian;
-    nu              5e-7;
-    rho             8.0;
-
-    Cp              895.2;      // vap 
-    Cv              870.4;      // Cv = Cp - R/w
-    kappa           0.01;       // vapor
-    hf              142E3;      // HFE7000
-}
-
-Prt             6.69;              // Turbulence Pr
 
 
 // ************************************************************************* //

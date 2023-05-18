@@ -9,45 +9,40 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      p_rgh;
+    class       volVectorField;
+    object      U;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions          [ 1 -1 -2 0 0 0 0 ];
+dimensions      [0 1 -1 0 0 0 0];
 
-internalField       uniform 0;
+internalField   uniform (0 0.02 0);
 
 boundaryField
 {
-    Base
+    "(Walls|Heater)"
     {
-        type            fixedFluxPressure;
-        value           $internalField;
+        type        noSlip;
     }
     
-    Top
-    {
-        type            fixedFluxPressure;
-        value           $internalField;
-    }
-    
+
     Inlet
     {
-        type            fixedFluxPressure;
-        p0              uniform 0;
+        type        fixedValue;   
+        value       uniform (0 0.02 0); 
     }
 
     Outlet
     {
-        type            totalPressure;
-        p0              uniform 0;
+        type            fluxCorrectedVelocity;
+        phi             phi;
+        rho             rho;
     }
     
     FrontNBack
     {
         type empty;
-    }   
+    }  
 
 }
 

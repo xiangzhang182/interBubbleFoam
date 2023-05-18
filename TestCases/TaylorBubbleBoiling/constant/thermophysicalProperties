@@ -9,36 +9,12 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      T;
+    class       dictionary;
+    object      thermophysicalProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions          [0 0 0 1 0 0 0];
-
-internalField       uniform 307.15;    // T_Sat = 34C, HFE7000
-
-boundaryField
-{
-    "(Walls|Base)"
-
-    {
-        type            zeroGradient;
-        value           $internalField;
-    }
-
-    Top
-    {
-        type            zeroGradient;
-        value           uniform 307.15;
-    }
-
-    FrontAndBack
-    {
-        type            empty;
-    }
-
-}
+TSat             307.15;
 
 
 // ************************************************************************* //

@@ -21,17 +21,12 @@ internalField   uniform 1;
 boundaryField
 {
     
-    Base
+    "(Base|Top)"
     {
         type           constantAlphaContactAngle;
         theta0         5;                                   
         limit          gradient;
         value          uniform 0;
-    }
-    
-    Walls
-    {
-        type            zeroGradient;
     }
     
     Inlet
@@ -46,6 +41,11 @@ boundaryField
         type            inletOutlet;
         inletValue      uniform 1;
         value           uniform 1;
+    }
+    
+    FrontNBack
+    {
+        type empty;
     }
     
 }

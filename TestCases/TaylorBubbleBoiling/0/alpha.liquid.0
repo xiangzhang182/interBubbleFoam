@@ -9,12 +9,46 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    object      thermophysicalProperties;
+    class       volScalarField;
+    object      alpha.liquid;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-TSat             307.15; 
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform 1;
+
+boundaryField
+{
+    
+    "(Walls|Heater)"
+    {
+        type           constantAlphaContactAngle;
+        theta0         5;                                   
+        limit          gradient;
+        value          uniform 0;
+    }
+    
+    Inlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 1;
+        value           uniform 1;
+    }
+
+    Outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 1;
+        value           uniform 1;
+    }
+    
+    FrontNBack
+    {
+        type empty;
+    }
+    
+}
 
 
 // ************************************************************************* //

@@ -26,10 +26,10 @@ boundaryField
         //type fixedValue;
         //value uniform 313.15;
         type fixedGradient;
-        gradient uniform 8E5;    //  6.0 W/cm2
+        gradient uniform 2E5;    //  6.0 W/cm2  8E5
     }
     
-    Walls
+    Top
     {
         type            zeroGradient;
         value           uniform 307.15;
@@ -37,15 +37,21 @@ boundaryField
 
     Inlet
     {
-        type            zeroGradient;
+        type            fixedValue;
         value           uniform 307.15;
     }
 
     Outlet
     {
-        type            zeroGradient;
+        type            inletOutlet;
+        inletValue      uniform 307.15;
         value           uniform 307.15;
     }
+    
+    FrontNBack
+    {
+        type empty;
+    }   
 
 }
 

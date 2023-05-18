@@ -9,36 +9,43 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      p_rgh;
+    class       dictionary;
+    object      transportProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions          [ 1 -1 -2 0 0 0 0 ];
 
-internalField       uniform 0;
+phases          (liquid vapor);  // HFE7000
 
-boundaryField
+continuousPhase liquid;   
+
+sigma           0.0105;
+
+liquid
 {
-    "(Walls|Base)"
-    
-    {
-        type            fixedFluxPressure;
-        value           $internalField;
-    }
-    
-    Top
-    {
-        type            totalPressure;
-        p0              uniform 0;
-    }
+    transportModel  Newtonian;
+    nu              2.8e-7;
+    rho             1380;
 
-    FrontAndBack
-    {
-        type            empty;
-    }
-
+    Cp              1300;
+    Cv              1300;   // assume Cp for liquid
+    kappa           0.075;
+    hf              0;
 }
+
+vapor
+{
+    transportModel  Newtonian;
+    nu              5e-7;
+    rho             8.0;
+
+    Cp              895.2;      // vap 
+    Cv              870.4;      // Cv = Cp - R/w
+    kappa           0.01;       // vapor
+    hf              142E3;      // HFE7000
+}
+
+Prt             6.69;              // Turbulence Pr
 
 
 // ************************************************************************* //

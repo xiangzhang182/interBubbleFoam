@@ -27,7 +27,7 @@ solution
     {
         schemes
         {
-            U               explicit 1;
+            U               semiImplicit 1;
             T               semiImplicit 1;
         }
     }
@@ -39,11 +39,13 @@ solution
         U               cellPoint;
         mu              cellPoint;
         alpha.liquid    cellPoint;
-        T               cellPoint;            
+        T               cell;             
         n_hat           cellPoint;
         cp              cellPoint;
         kappa           cellPoint;
 		sigma           cellPoint;
+		DUcDt           cellPoint;
+		curlUcDt        cellPoint;
     }
 
     integrationSchemes
@@ -55,7 +57,7 @@ solution
 
 constantProperties
 {
-    rho0            8.0;    // HFE7000
+    rho0            8.0;
 
     constantVolume  false;    
 
@@ -72,6 +74,17 @@ subModels
         gravity;
         InterfacePinning;
 		NucleatingBubblePinning;
+		TomiyamaLift;
+		
+		TomiyamaLift
+		{
+		    sigma 0.0105;
+		}
+		
+		virtualMass
+		{
+		    Cvm 0.5;
+		}
     }
 
     injectionModels    
@@ -115,9 +128,9 @@ cloudFunctions
 NucleateBoiling
 {
 	active true;
-    patch Base;
+    patch Heater;
 	
-	SiteDensity 2E4; //nucleation sites per area
+	SiteDensity 2E5;     //nucleation sites per area
 	
 	
 	//WaitingTime 1E-3; //Placeholder model for waiting time between bubble release and next bubble creation
@@ -127,8 +140,8 @@ NucleateBoiling
 		type        fixedValue;
 		fixedValueDistribution
 		{
-			 value       2E-6;
-		}
+			 value       4E-5;    
+		}     
 		
 	}
 

@@ -10,37 +10,39 @@ FoamFile
     version     2.0;
     format      ascii;
     class       volScalarField;
-    object      alpha.liquid;
+    object      p;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 0 0 0 0 0 0];
+dimensions          [ 1 -1 -2 0 0 0 0 ];
 
-internalField   uniform 0;
+internalField       uniform 0;
 
 boundaryField
 {
-    
-    "(Walls|Base)"
+    "(Walls|Heater)"
     {
-        type           constantAlphaContactAngle;
-        theta0         30;                             
-        limit          gradient;
-        value          uniform 0;
-    }
-    
-
-    Top
-    {
-        type            inletOutlet;
-        inletValue      uniform 0;
-        value           uniform 0;
+        type            calculated;
+        value           $internalField;
     }
 
-    frontAndBack
+    Inlet
     {
-        type            empty;
+        type            calculated;
+        value           $internalField;
     }
+    
+    Outlet
+    {
+        type            calculated;
+        value           $internalField;
+    }
+    
+    FrontNBack
+    {
+        type empty;
+    }
+
 }
 
 

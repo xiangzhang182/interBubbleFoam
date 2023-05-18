@@ -9,17 +9,41 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    object      phaseChangeProperties;
+    class       volScalarField;
+    object      p_rgh;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-phaseChangeTwoPhaseModel interfaceHeatResistance;
+dimensions          [ 1 -1 -2 0 0 0 0 ];
 
-interfaceHeatResistanceCoeffs
+internalField       uniform 0;
+
+boundaryField
 {
-    R          0;
-    spread     1;
+    "(Walls|Heater)"
+    {
+        type            fixedFluxPressure;
+        value           $internalField;
+    }
+    
+    
+    Inlet
+    {
+        type            fixedFluxPressure;
+        p0              uniform 0;
+    }
+
+    Outlet
+    {
+        type            totalPressure;
+        p0              uniform 0;
+    }
+    
+    FrontNBack
+    {
+        type empty;
+    }   
+
 }
 
 
